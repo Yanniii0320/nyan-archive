@@ -2,19 +2,19 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "RESONANCE — NÝAN.ARCHIVE",
+  title: "NÝAN.ARCHIVE",
   description:
-    "An explorable listening organism inside NÝAN.ARCHIVE. Music is encountered as a living emotional space.",
+    "A personal archive of tender systems: image, identity, sound and experiments.",
   icons: { icon: "/favicon.svg" },
   openGraph: {
-    title: "RESONANCE — NÝAN.ARCHIVE",
-    description: "Listening is entering someone else’s emotional space.",
-    images: [{ url: "/og.png", width: 1680, height: 940, alt: "A luminous organism within the RESONANCE world" }],
+    title: "NÝAN.ARCHIVE",
+    description: "A personal archive of tender systems.",
+    images: [{ url: "/og.png", width: 1680, height: 940, alt: "A luminous organism within NÝAN.ARCHIVE" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "RESONANCE — NÝAN.ARCHIVE",
-    description: "Listening is entering someone else’s emotional space.",
+    title: "NÝAN.ARCHIVE",
+    description: "A personal archive of tender systems.",
     images: ["/og.png"],
   },
 };

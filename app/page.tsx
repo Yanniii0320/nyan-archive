@@ -1,5 +1,5 @@
-import ResonanceExperience from "./resonance-experience";
+import ArchivePortal from "./archive-portal";
 
 export default function Home() {
-  return <ResonanceExperience />;
+  return <ArchivePortal />;
 }
