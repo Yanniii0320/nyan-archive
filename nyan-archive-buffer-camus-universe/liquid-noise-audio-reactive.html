@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Liquid Noise — Audio Reactive Shader</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; width:100%; height:100%; overflow:hidden; background:#07020c; }
+  body { font-family: "Helvetica Neue", Arial, sans-serif; }
+  canvas { position:fixed; inset:0; width:100%; height:100%; display:block; cursor:crosshair; }
+  #ui { position:fixed; inset:0; pointer-events:none; color:rgba(255,247,253,.9); mix-blend-mode:screen; }
+  .back { position:absolute; z-index:4; left:28px; top:24px; pointer-events:auto; color:rgba(255,247,253,.78); text-decoration:none; font-size:9px; letter-spacing:.16em; text-transform:uppercase; transition:opacity .25s ease, transform .25s ease; }
+  .back:hover,.back:focus-visible { color:#fff; transform:translateX(-3px); }
+  .page-fade { position:fixed; z-index:20; inset:0; pointer-events:none; opacity:0; background:radial-gradient(circle at 50% 50%,rgba(32,6,49,.42),#07020c 72%); transition:opacity .34s ease; }
+  body.is-leaving .page-fade { opacity:1; }
+  body.is-leaving canvas { transform:scale(1.012); filter:blur(2px); opacity:.45; transition:transform .34s ease,filter .34s ease,opacity .34s ease; }
+  .title {
+    position:absolute; left:28px; top:58px; font-size:10px; line-height:1.55;
+    letter-spacing:.16em; text-transform:uppercase; text-shadow:0 0 18px rgba(255,110,191,.55);
+  }
+  .meta {
+    position:absolute; right:28px; bottom:24px; font-size:9px; line-height:1.65;
+    letter-spacing:.12em; text-align:right; text-transform:uppercase;
+  }
+  #sound {
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    pointer-events:auto; width:156px; height:156px; border-radius:50%;
+    border:1px solid rgba(255,235,249,.62); color:#fff8fc; background:rgba(57,4,47,.14);
+    backdrop-filter:blur(12px); cursor:pointer; font:10px/1.3 "Helvetica Neue",Arial,sans-serif;
+    letter-spacing:.14em; text-transform:uppercase;
+    box-shadow:0 0 36px rgba(255,72,177,.2), inset 0 0 28px rgba(255,213,240,.11);
+    transition:transform .45s cubic-bezier(.2,.8,.2,1), opacity .45s, box-shadow .35s;
+  }
+  #sound:hover { transform:translate(-50%,-50%) scale(1.12); box-shadow:0 0 70px rgba(255,72,177,.38), inset 0 0 34px rgba(255,213,240,.14); }
+  #sound.hidden { opacity:0; pointer-events:none; transform:translate(-50%,-50%) scale(.78); }
+  .line { display:block; margin-top:8px; opacity:.58; font-size:8px; letter-spacing:.1em; }
+  @media(max-width:640px) {
+    .title{left:16px;top:48px;font-size:9px}
+    .meta{right:16px;bottom:16px;font-size:8px}.back{left:16px;top:16px}
+    #sound{width:134px;height:134px}
+  }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div id="ui">
+  <div class="title">LIQUID NOISE<br><span class="line">audio / bass / fluid reflection</span></div>
+  <button id="sound">enable<br>sound<span class="line">use microphone</span></button>
+  <div class="meta" id="status">move the cursor through light<br>click to shift the density</div>
+  <a class="back" id="back" href="./index.html">← BUFFER</a>
+</div>
+<div class="page-fade" aria-hidden="true"></div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('gl');
+  const button = document.getElementById('sound');
+  const status = document.getElementById('status');
+  const back = document.getElementById('back');
+  const gl = canvas.getContext('webgl', { antialias:false, alpha:false, preserveDrawingBuffer:false });
+
+  if (!gl) {
+    status.textContent = 'WEBGL IS NOT AVAILABLE IN THIS BROWSER';
+    return;
+  }
+
+  const vertex = `
+    attribute vec2 aPosition;
+    void main() {
+      gl_Position = vec4(aPosition, 0.0, 1.0);
+    }
+  `;
+
+  // Based on the shader structure you supplied, with a pink-blue palette and safer WebGL uniform handling.
+  const fragment = `
+    precision highp float;
+    uniform vec2 iResolution;
+    uniform vec2 iMouse;
+    uniform float iTime;
+    uniform int noctaves;
+    uniform float c[22];
+
+    float noise(in vec2 x) {
+      return sin(0.5*x.x) * sin(0.5*x.y);
+    }
+
+    const mat2 rot = mat2(0.80, 0.6, -0.6, 0.8);
+
+    float fbm(in vec2 st) {
+      float v = 0.0;
+      float a = 0.5;
+      vec2 shift = 10.0 * vec2(c[11], c[12]);
+      for (int i = 0; i < 11; i++) {
+        if (i >= noctaves) break;
+        v += a * noise(st);
+        st = rot * st * 2.7 + shift;
+        a *= 0.7;
+      }
+      return v;
+    }
+
+    void main() {
+      vec2 mouse = iMouse / iResolution;
+      vec2 st = (-iResolution.xy + 2.0 * gl_FragCoord.xy) / iResolution.y;
+      vec3 color = vec3(0.0);
+
+      vec2 q;
+      q.x = fbm(st + vec2(c[0], c[1] * .01 * iTime));
+      q.y = fbm(st + vec2(c[2], c[3]));
+
+      vec2 r;
+      r.x = fbm(st + (3.0 * mouse.x + 0.4) * q + vec2(c[5], c[6]));
+      r.y = fbm(st + (6.0 * mouse.y + 0.5) * q * sin(.01 * iTime) + vec2(c[8] * .05 * iTime, c[9]));
+
+      float f = fbm(st + c[10] * (r + length(q)));
+
+      vec3 cobalt = vec3(0.04, 0.24, 0.88);
+      vec3 lavender = vec3(0.61, 0.49, 0.98);
+      vec3 hotPink = vec3(1.0, 0.04, 0.43);
+      vec3 ice = vec3(0.38, 0.92, 1.0);
+
+      color = mix(cobalt, lavender, smoothstep(-0.65, 1.15, r.y + length(q)));
+      color = mix(color, hotPink, clamp(length(r + q) * .76, 0.0, 1.0));
+      color = mix(color, ice, clamp(dot(r, r) * .72, 0.0, 1.0));
+
+      color *= (1.35 * f*f*f + 1.65*f*f + 1.32*f);
+      color += .22 * vec3(1.4 + r.x, .45 + q.x, .92 + q.y);
+      color = pow(max(color, 0.0), vec3(.52));
+
+      // Soft vignette, so it feels less like a raw shader preview.
+      vec2 uv = gl_FragCoord.xy / iResolution.xy;
+      float vignette = smoothstep(1.22, .15, length(uv - .5));
+      color *= .72 + vignette * .42;
+
+      gl_FragColor = vec4(color, 1.0);
+    }
+  `;
+
+  function makeShader(type, source) {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      throw new Error(gl.getShaderInfoLog(shader));
+    }
+    return shader;
+  }
+
+  let program;
+  try {
+    program = gl.createProgram();
+    gl.attachShader(program, makeShader(gl.VERTEX_SHADER, vertex));
+    gl.attachShader(program, makeShader(gl.FRAGMENT_SHADER, fragment));
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(program));
+  } catch (err) {
+    console.error(err);
+    status.textContent = 'SHADER COULD NOT COMPILE';
+    return;
+  }
+
+  gl.useProgram(program);
+
+  const buffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
+
+  const position = gl.getAttribLocation(program, 'aPosition');
+  gl.enableVertexAttribArray(position);
+  gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+
+  const uniforms = {
+    resolution: gl.getUniformLocation(program, 'iResolution'),
+    mouse: gl.getUniformLocation(program, 'iMouse'),
+    time: gl.getUniformLocation(program, 'iTime'),
+    octaves: gl.getUniformLocation(program, 'noctaves'),
+    colors: gl.getUniformLocation(program, 'c[0]')
+  };
+
+  const constants = new Float32Array(22);
+  function initConstants() {
+    for (let i = 0; i < constants.length; i++) {
+      constants[i] = Math.random() * 1.8 - .22;
+    }
+    constants[10] = .85 + Math.random() * .35;
+  }
+  initConstants();
+
+  let W = 1, H = 1, DPR = 1, start = performance.now();
+  let pointer = { x:.5, y:.5, tx:.5, ty:.5 };
+  let audio = { active:false, analyser:null, data:null, bass:0, level:0 };
+  let octaves = 4;
+  let lastTap = 0;
+
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 1.8);
+    W = Math.floor(innerWidth * DPR);
+    H = Math.floor(innerHeight * DPR);
+    canvas.width = W; canvas.height = H;
+    gl.viewport(0, 0, W, H);
+  }
+  addEventListener('resize', resize, { passive:true });
+  resize();
+
+  async function startSound() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation:false, noiseSuppression:false, autoGainControl:false }
+      });
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const source = ctx.createMediaStreamSource(stream);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 512;
+      analyser.smoothingTimeConstant = .82;
+      source.connect(analyser);
+      audio.analyser = analyser;
+      audio.data = new Uint8Array(analyser.frequencyBinCount);
+      audio.active = true;
+      button.classList.add('hidden');
+      status.innerHTML = 'LISTENING — BASS PULLS THE LIQUID FIELD<br>CLICK TO SHIFT THE DENSITY';
+    } catch (err) {
+      button.classList.add('hidden');
+      status.innerHTML = 'GESTURE MODE — MOVE THROUGH THE LIQUID FIELD<br>CLICK TO SHIFT THE DENSITY';
+    }
+  }
+  button.addEventListener('click', startSound);
+
+  function updateAudio() {
+    if (!audio.active) {
+      const pseudo = Math.min(1, Math.abs(pointer.x - pointer.tx) * 9 + Math.abs(pointer.y - pointer.ty) * 9);
+      audio.bass += (pseudo - audio.bass) * .06;
+      audio.level += (pseudo - audio.level) * .05;
+      return;
+    }
+    audio.analyser.getByteFrequencyData(audio.data);
+    let bass = 0, all = 0;
+    for (let i = 1; i < 16; i++) bass += audio.data[i];
+    for (let i = 1; i < 100; i++) all += audio.data[i];
+    bass /= 15 * 255;
+    all /= 99 * 255;
+    audio.bass += (bass - audio.bass) * .12;
+    audio.level += (all - audio.level) * .10;
+  }
+
+  function draw() {
+    requestAnimationFrame(draw);
+    updateAudio();
+
+    pointer.x += (pointer.tx - pointer.x) * .07;
+    pointer.y += (pointer.ty - pointer.y) * .07;
+
+    const elapsed = (performance.now() - start) * .001;
+    const audioX = Math.min(1, pointer.x * .38 + audio.bass * .95);
+    const audioY = Math.min(1, pointer.y * .42 + audio.level * .75);
+
+    gl.uniform2f(uniforms.resolution, W, H);
+    gl.uniform2f(uniforms.mouse, audioX * W, audioY * H);
+    gl.uniform1f(uniforms.time, elapsed * (1 + audio.level * .38));
+    gl.uniform1i(uniforms.octaves, octaves);
+    gl.uniform1fv(uniforms.colors, constants);
+
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+  }
+  draw();
+
+  addEventListener('pointermove', e => {
+    pointer.tx = e.clientX / innerWidth;
+    pointer.ty = 1 - e.clientY / innerHeight;
+  }, { passive:true });
+
+  addEventListener('pointerdown', e => {
+    const now = performance.now();
+    initConstants();
+    octaves = octaves >= 6 ? 2 : octaves + 1;
+    if (now - lastTap < 260) octaves = 4;
+    lastTap = now;
+  }, { passive:true });
+
+  addEventListener('keydown', e => {
+    if (e.key === ' ') {
+      e.preventDefault();
+      octaves = octaves >= 6 ? 2 : octaves + 1;
+    }
+  });
+
+  back.addEventListener('click', e => {
+    e.preventDefault();
+    document.body.classList.add('is-leaving');
+    // Stop microphone work before returning, while keeping the last liquid
+    // frame visible beneath the short dissolve.
+    if (audio.active && audio.analyser?.context) audio.analyser.context.suspend().catch(() => {});
+    setTimeout(() => {
+      if (history.length > 1 && document.referrer.includes(location.host)) history.back();
+      else location.href = back.href;
+    }, 300);
+  });
+})();
+</script>
+</body>
+</html>

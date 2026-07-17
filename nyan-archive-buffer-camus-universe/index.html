@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b0d13" />
+  <title>NÝAN.ARCHIVE — Dream Portal</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <main id="app" class="app" data-world="0">
+    <section class="scene" aria-label="Dream world entrance">
+      <canvas class="world-bg" id="worldCanvas"></canvas>
+      <div class="world-color" id="worldColor"></div>
+
+      <div class="wind-layer wind-layer--curtain" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+
+      <div class="wind-layer wind-layer--grass" aria-hidden="true">
+        <span class="grass-wave grass-wave--one"></span>
+        <span class="grass-wave grass-wave--two"></span>
+        <span class="grass-wave grass-wave--three"></span>
+      </div>
+
+      <div class="mist" aria-hidden="true"><span></span><span></span></div>
+      <div class="water-shimmer" aria-hidden="true"></div>
+
+      <div class="petals" id="petals" aria-hidden="true"></div>
+      <div class="dust" id="dust" aria-hidden="true"></div>
+
+      <div class="scene-vignette" aria-hidden="true"></div>
+      <div class="scene-grain" aria-hidden="true"></div>
+    </section>
+
+    <header class="topbar">
+      <a href="#" id="randomHome" class="brand">NÝAN.ARCHIVE</a>
+      <div class="world-meta">
+        <span id="worldIndex">01 / 04</span>
+        <span class="meta-line"></span>
+        <span id="worldName">BUFFER</span>
+      </div>
+      <button type="button" class="sound-toggle" id="soundToggle" aria-pressed="false">
+        SOUND <span id="soundState">OFF</span><i></i>
+      </button>
+    </header>
+
+    <div class="scene-copy">
+      <p class="eyebrow" id="worldCN">边界之外</p>
+      <h1 id="worldTitle">LIMINAL</h1>
+      <p class="scene-description" id="worldDescription">
+        有些世界并不等待被理解。<br />
+        它们只在你经过时，短暂地呼吸。
+      </p>
+    </div>
+
+    <p class="scroll-hint">SCROLL TO DRIFT <span>↓</span></p>
+    <p class="click-hint" id="clickHint">CLICK THE BUTTERFLY TO ENTER</p>
+
+    <button class="butterfly" id="butterfly" type="button" aria-label="Enter current dream world">
+      <span class="butterfly-wing butterfly-wing--left"></span>
+      <span class="butterfly-wing butterfly-wing--right"></span>
+      <span class="butterfly-body"></span>
+      <span class="butterfly-glow"></span>
+    </button>
+
+    <div class="dream-transition" id="dreamTransition" aria-hidden="true">
+      <div class="transition-particles" id="transitionParticles"></div>
+      <div class="transition-stretch"></div>
+      <div class="transition-blur"></div>
+    </div>
+
+    <section class="subpage" id="subpage" aria-hidden="true">
+      <canvas class="subpage-bg" id="subpageCanvas"></canvas>
+      <div class="subpage-shade"></div>
+
+      <header class="subpage-header">
+        <span class="subpage-world-mark" id="subpageWorld">01 / BUFFER</span>
+      </header>
+
+      <button class="return-butterfly" id="returnButterfly" type="button" aria-label="Follow the butterfly back to another dream entrance">
+        <span class="return-butterfly__wing return-butterfly__wing--left"></span>
+        <span class="return-butterfly__wing return-butterfly__wing--right"></span>
+        <span class="return-butterfly__body"></span>
+        <span class="return-butterfly__whisper">FOLLOW</span>
+      </button>
+
+      <div class="subpage-content timeline-shell">
+        <div class="timeline-intro">
+          <p class="subpage-eyebrow">ARCHIVE / SELECTED WORKS</p>
+          <h2 id="subpageTitle">LIMINAL</h2>
+          <p id="subpageBody">
+            这里是该世界的项目列表入口。之后可接入你的作品卡片、详情页和横向叙事。
+          </p>
+        </div>
+
+        <div class="timeline-viewport" id="timelineViewport" aria-label="Horizontal project timeline">
+          <div class="timeline-rail" id="timelineRail"></div>
+        </div>
+
+        <div class="timeline-status" aria-hidden="true">
+          <span id="timelineCounter">01 / 03</span>
+          <span class="timeline-status__line"></span>
+          <span>SCROLL TO DRIFT →</span>
+        </div>
+
+        <div class="timeline-progress" aria-hidden="true">
+          <span id="timelineProgress"></span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>
