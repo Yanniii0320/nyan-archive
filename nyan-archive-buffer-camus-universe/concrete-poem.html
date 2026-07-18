@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#09090d" />
+<title>Call Me by Your Name — NÝAN.ARCHIVE</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap');
+  :root{--paper:#f1efec;--muted:rgba(241,239,236,.52);--line:rgba(241,239,236,.16);--accent-r:217;--accent-g:210;--accent-b:255}
+  *{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#09090d;color:var(--paper)}
+  body{font-family:'DM Mono',ui-monospace,monospace;cursor:crosshair}canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+  .grain{position:fixed;inset:0;pointer-events:none;opacity:.07;mix-blend-mode:screen;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.65'/%3E%3C/svg%3E")}
+  .vignette{position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 50%,transparent 16%,rgba(0,0,0,.08) 55%,rgba(0,0,0,.8) 100%)}
+  .top{position:fixed;z-index:3;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:flex-start;padding:29px 39px;pointer-events:none}.mark,.meta{font-size:10px;letter-spacing:.18em;color:var(--muted);line-height:1.65;text-transform:uppercase}.meta{text-align:right}
+  .back{pointer-events:auto;color:var(--paper);text-decoration:none;font-size:10px;letter-spacing:.18em;text-transform:uppercase;opacity:.68;transition:opacity .3s ease}.back:hover{opacity:1}
+  .title{position:fixed;z-index:3;left:50%;top:50%;translate:-50% -50%;width:min(90vw,1040px);text-align:center;pointer-events:none;mix-blend-mode:screen}.title p{margin:0;font:400 clamp(14px,1.45vw,20px)/1.25 'Cormorant Garamond',serif;letter-spacing:.36em;text-transform:uppercase;color:rgba(255,255,255,.38);transition:opacity .55s ease,filter .55s ease}.title p.is-space{opacity:.16;filter:blur(2px)}
+  .caption{position:fixed;z-index:3;left:39px;bottom:30px;font-size:9px;letter-spacing:.16em;line-height:1.7;color:var(--muted);text-transform:uppercase;pointer-events:none}.hint{position:fixed;z-index:3;right:39px;bottom:30px;font-size:9px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;pointer-events:none;transition:opacity .45s ease}.hint.hide{opacity:0}
+  .space-readout{position:fixed;z-index:3;left:50%;bottom:31px;translate:-50% 12px;font-size:8px;letter-spacing:.22em;color:rgba(var(--accent-r),var(--accent-g),var(--accent-b),.62);text-transform:uppercase;opacity:0;pointer-events:none;transition:opacity .35s ease,translate .35s ease}.space-readout.is-visible{opacity:1;translate:-50% 0}
+  .cursor{position:fixed;z-index:5;width:7px;height:7px;border:1px solid rgba(255,255,255,.85);border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);mix-blend-mode:screen;box-shadow:0 0 18px rgba(255,255,255,.42);transition:width .22s ease,height .22s ease,border-color .22s ease}.cursor.pulling{width:24px;height:24px;border-color:rgba(var(--accent-r),var(--accent-g),var(--accent-b),.95);box-shadow:0 0 12px rgba(var(--accent-r),var(--accent-g),var(--accent-b),.84),0 0 43px rgba(var(--accent-r),var(--accent-g),var(--accent-b),.48)}
+  .hub{position:fixed;z-index:6;right:31px;bottom:28px;width:250px;padding:13px 14px 12px;border:1px solid rgba(255,255,255,.14);border-radius:13px;background:rgba(8,8,12,.42);backdrop-filter:blur(16px);box-shadow:0 16px 42px rgba(0,0,0,.22);transform:translateY(calc(100% - 40px));transition:transform .45s cubic-bezier(.2,.8,.2,1),border-color .3s ease;user-select:none}.hub:hover,.hub:focus-within,.hub.is-open{transform:translateY(0);border-color:rgba(255,255,255,.25)}.hub__head{display:flex;align-items:center;justify-content:space-between;height:25px;cursor:pointer;gap:12px}.hub__title{font-size:9px;letter-spacing:.18em;color:rgba(255,255,255,.72);text-transform:uppercase}.hub__plus{font-size:14px;color:var(--muted);line-height:1;transition:transform .35s ease}.hub.is-open .hub__plus{transform:rotate(45deg)}.hub__body{padding-top:12px;display:grid;gap:13px}.control{display:grid;grid-template-columns:78px 1fr;align-items:center;gap:10px}.control label{font-size:8px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}.control input[type=range]{width:100%;accent-color:rgb(var(--accent-r),var(--accent-g),var(--accent-b));height:2px;cursor:pointer}.swatches{display:flex;gap:7px;align-items:center}.swatch{width:15px;height:15px;border-radius:50%;padding:0;border:1px solid rgba(255,255,255,.15);background:rgb(var(--swatch));cursor:pointer;box-shadow:0 0 13px rgba(var(--swatch),.16);transition:transform .25s ease,border-color .25s ease}.swatch:hover,.swatch.active{transform:scale(1.18);border-color:#fff}.hub__foot{margin-top:2px;color:rgba(255,255,255,.36);font-size:7px;letter-spacing:.14em;text-transform:uppercase}
+  @media(max-width:700px){.top{padding:20px 18px}.caption{left:18px;bottom:19px;font-size:8px}.hint{right:18px;bottom:20px;font-size:8px}.space-readout{bottom:59px;font-size:7px}.title p{letter-spacing:.22em}.hub{right:14px;bottom:14px;width:222px}.control{grid-template-columns:68px 1fr}}
+</style>
+</head>
+<body>
+<canvas id="poem"></canvas><div class="grain"></div><div class="vignette"></div>
+<header class="top"><a class="back" id="back" href="./index.html">← BUFFER</a><div class="meta">03 / 03<br>CALL ME BY YOUR NAME</div></header>
+<div class="title"><p id="whisper">in the midst of winter / i found within me</p></div>
+<div class="caption">A CAMUS FIELD / LETTERS BECOME MATTER<br>HOLD + DRAG TO BEND THE SPACE</div>
+<div class="hint" id="hint">CLICK TO SHIFT THE FRAGMENT</div><div class="space-readout" id="readout">ORBIT FIELD / RELEASE TO RETURN</div><div class="cursor" id="cursor"></div>
+<section class="hub" id="hub" aria-label="Particle field controls"><div class="hub__head" id="hubHead"><span class="hub__title">FIELD / CONTROLS</span><span class="hub__plus">+</span></div><div class="hub__body"><div class="control"><label for="size">TYPE SIZE</label><input id="size" type="range" min="4" max="15" value="8" step="1"></div><div class="control"><label for="density">DENSITY</label><input id="density" type="range" min="320" max="980" value="700" step="20"></div><div class="control"><label for="orbit">ORBIT</label><input id="orbit" type="range" min="40" max="180" value="95" step="1"></div><div class="control"><label>COLOR</label><div class="swatches"><button class="swatch active" data-color="241,239,236" style="--swatch:241,239,236" aria-label="Ivory"></button><button class="swatch" data-color="211,199,255" style="--swatch:211,199,255" aria-label="Lavender"></button><button class="swatch" data-color="176,226,255" style="--swatch:176,226,255" aria-label="Blue"></button><button class="swatch" data-color="255,197,223" style="--swatch:255,197,223" aria-label="Pink"></button></div></div></div><div class="hub__foot">hold + drag to open a quote-space</div></section>
+<script>
+(() => {
+ const canvas=document.querySelector('#poem'),ctx=canvas.getContext('2d');
+ const cursor=document.querySelector('#cursor'),whisper=document.querySelector('#whisper'),hint=document.querySelector('#hint'),readout=document.querySelector('#readout');
+ const hub=document.querySelector('#hub'),hubHead=document.querySelector('#hubHead'),sizeControl=document.querySelector('#size'),densityControl=document.querySelector('#density'),orbitControl=document.querySelector('#orbit');
+ // English translations of the Camus fragments you supplied: the field always draws its letters from the active quotation.
+ const fragments=[
+  ['IN THE MIDST OF WINTER, I FOUND WITHIN ME','AN INVINCIBLE SUMMER.'],
+  ['THE STRUGGLE ITSELF','TOWARD THE HEIGHTS IS ENOUGH.'],
+  ['THE REAL GENEROSITY TOWARD THE FUTURE','LIES IN GIVING ALL TO THE PRESENT.'],
+  ['I REBEL,','THEREFORE WE ARE.'],
+  ['WITHOUT DESPAIR IN LIFE,','THERE IS NO LOVE OF LIFE.'],
+  ['ONE MUST IMAGINE','SISYPHUS HAPPY.']
+ ];
+ const state={particleSize:8,maxParticles:700,orbit:95,color:[241,239,236],fragment:0};
+ let W=0,H=0,DPR=1,particles=[],targets=[],last=performance.now();
+ const mouse={x:-9999,y:-9999,px:-9999,py:-9999,down:false,downX:0,downY:0,trail:[],space:0};
+ const rand=(a,b)=>a+Math.random()*(b-a); const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+ function setAccent(rgb){document.documentElement.style.setProperty('--accent-r',rgb[0]);document.documentElement.style.setProperty('--accent-g',rgb[1]);document.documentElement.style.setProperty('--accent-b',rgb[2]);}
+ function resize(){DPR=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*DPR;canvas.height=H*DPR;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0);buildTargets();}
+ function activeLetters(){return fragments[state.fragment].join(' ').replace(/[^A-Z]/g,'') || 'CAMUS';}
+ function makeParticle(i){const chars=activeLetters();return{x:Math.random()*W,y:Math.random()*H,z:rand(.1,1),vx:rand(-.2,.2),vy:rand(-.2,.2),tx:W/2,ty:H/2,size:rand(.6,1.18),phase:rand(0,Math.PI*2),alpha:rand(.27,.66),char:chars[i%chars.length],orbitPhase:rand(0,Math.PI*2),orbitBias:rand(.48,1.35),seed:rand(0,100)};}
+ function paintText(){const off=document.createElement('canvas'),o=off.getContext('2d');off.width=Math.floor(W*.91);off.height=Math.floor(H*.58);const fs=Math.min(W*.075,100);o.fillStyle='#fff';o.textAlign='center';o.textBaseline='middle';o.font=`500 ${fs}px 'Cormorant Garamond', serif`;const lines=fragments[state.fragment];const y0=lines.length===1?off.height*.52:off.height*.40;o.fillText(lines[0],off.width/2,y0);if(lines[1])o.fillText(lines[1],off.width/2,y0+fs*1.35);return off;}
+ function buildTargets(){if(!W)return;const off=paintText(),o=off.getContext('2d'),data=o.getImageData(0,0,off.width,off.height).data,found=[];const step=Math.max(2,Math.round(Math.min(W,H)/440));for(let y=0;y<off.height;y+=step){for(let x=0;x<off.width;x+=step){if(data[(y*off.width+x)*4+3]>90)found.push({x:x+(W-off.width)/2,y:y+(H-off.height)/2});}}targets=found.sort(()=>Math.random()-.5);while(particles.length<state.maxParticles)particles.push(makeParticle(particles.length));particles.length=state.maxParticles;const chars=activeLetters();particles.forEach((p,i)=>{const t=targets[i%targets.length]||{x:W/2,y:H/2};p.tx=t.x+rand(-2.2,2.2);p.ty=t.y+rand(-2.2,2.2);p.char=chars[(i*7+Math.floor(Math.random()*chars.length))%chars.length];});}
+ function orbitField(p,dt){const dx=p.x-mouse.x,dy=p.y-mouse.y,d=Math.hypot(dx,dy)+.001;const radius=state.orbit+Math.min(265,Math.hypot(mouse.x-mouse.downX,mouse.y-mouse.downY)*.36);if(d<radius*2.2){const influence=Math.pow(1-d/(radius*2.2),1.75);const nx=dx/d,ny=dy/d,tx=-ny,ty=nx;const vel=Math.min(1.5,Math.hypot(mouse.x-mouse.px,mouse.y-mouse.py)/13);const attract=(d>radius*.66?1:-.34)*(.025+vel*.018);const swirl=.085+vel*.1;p.vx+=(-nx)*influence*attract*dt+tx*influence*swirl*dt;p.vy+=(-ny)*influence*attract*dt+ty*influence*swirl*dt;}
+ }
+ function drawSpace(){if(!mouse.down||mouse.trail.length<2)return;ctx.save();ctx.globalCompositeOperation='screen';for(let i=1;i<mouse.trail.length;i++){const a=mouse.trail[i-1],b=mouse.trail[i],q=i/mouse.trail.length;ctx.strokeStyle=`rgba(${state.color.join(',')},${.022+q*.13})`;ctx.lineWidth=.4+q*1.8;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}ctx.restore();}
+ function draw(t){requestAnimationFrame(draw);const dt=Math.min(2,(t-last)/16.67);last=t;ctx.fillStyle='rgba(9,9,13,.13)';ctx.fillRect(0,0,W,H);drawSpace();mouse.space+=(mouse.down?1:0-mouse.space)*.05;const mouseVel=Math.min(1,Math.hypot(mouse.x-mouse.px,mouse.y-mouse.py)/26);mouse.px+=(mouse.x-mouse.px)*.14;mouse.py+=(mouse.y-mouse.py)*.14;
+  particles.forEach((p,i)=>{const dx=p.tx-p.x,dy=p.ty-p.y;const formStrength=mouse.down?.00072:.00195;p.vx+=dx*formStrength*dt;p.vy+=dy*formStrength*dt;
+    const mx=p.x-mouse.x,my=p.y-mouse.y,d=Math.hypot(mx,my);if(!mouse.down&&d<100&&d>0){const f=(1-d/100)*(.014+mouseVel*.014);p.vx+=(mx/d)*f*dt;p.vy+=(my/d)*f*dt;}if(mouse.down)orbitField(p,dt);
+    p.vx*=mouse.down?.962:.895;p.vy*=mouse.down?.962:.895;p.x+=p.vx*dt;p.y+=p.vy*dt;
+    const speed=Math.min(1.2,Math.hypot(p.vx,p.vy)*.18);const depth=.64+p.z*.42;const breathe=Math.sin(t*.00062+p.phase)*.14;const s=(state.particleSize*.1+p.size*1.78+breathe)*(depth+speed*.12);const alpha=clamp(p.alpha*depth+(mouse.down?speed*.08:0),.15,.86);ctx.fillStyle=`rgba(${state.color.join(',')},${alpha})`;ctx.font=`${Math.max(4,s)}px 'DM Mono', monospace`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(p.char,p.x,p.y);
+  });
+ }
+ function switchFragment(){state.fragment=(state.fragment+1)%fragments.length;whisper.classList.remove('is-space');whisper.style.opacity=0;setTimeout(()=>{whisper.textContent=fragments[state.fragment].join(' / ');whisper.style.opacity=1;},160);hint.classList.add('hide');buildTargets();}
+ addEventListener('pointermove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;cursor.style.left=e.clientX+'px';cursor.style.top=e.clientY+'px';if(mouse.down){mouse.trail.push({x:mouse.x,y:mouse.y});if(mouse.trail.length>46)mouse.trail.shift();}});
+ addEventListener('pointerdown',e=>{if(e.target.closest('.hub')||e.target.closest('a'))return;mouse.down=true;mouse.downX=e.clientX;mouse.downY=e.clientY;mouse.trail=[{x:e.clientX,y:e.clientY}];cursor.classList.add('pulling');readout.classList.add('is-visible');whisper.classList.add('is-space');});
+ addEventListener('pointerup',e=>{if(!mouse.down)return;const moved=Math.hypot(e.clientX-mouse.downX,e.clientY-mouse.downY);mouse.down=false;cursor.classList.remove('pulling');readout.classList.remove('is-visible');whisper.classList.remove('is-space');if(moved<8)switchFragment();});
+ addEventListener('pointerleave',()=>{mouse.x=-9999;mouse.y=-9999;mouse.down=false;cursor.classList.remove('pulling');readout.classList.remove('is-visible');whisper.classList.remove('is-space');});
+ hubHead.addEventListener('click',()=>hub.classList.toggle('is-open'));sizeControl.addEventListener('input',e=>state.particleSize=+e.target.value);densityControl.addEventListener('input',e=>{state.maxParticles=+e.target.value;buildTargets();});orbitControl.addEventListener('input',e=>state.orbit=+e.target.value);
+ document.querySelectorAll('.swatch').forEach(el=>el.addEventListener('click',()=>{document.querySelectorAll('.swatch').forEach(x=>x.classList.remove('active'));el.classList.add('active');state.color=el.dataset.color.split(',').map(Number);setAccent(state.color);}));
+ addEventListener('resize',resize);resize();whisper.textContent=fragments[0].join(' / ');requestAnimationFrame(draw);
+ document.querySelector('#back').addEventListener('click',e=>{e.preventDefault();if(history.length>1&&document.referrer.includes(location.host))history.back();else location.href=e.currentTarget.href;});
+})();
+</script>
+</body>
+</html>
