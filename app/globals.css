@@ -27,6 +27,14 @@ body {
 button,
 a { cursor: none; }
 
+.original-home {
+  display: block;
+  width: 100%;
+  height: 100svh;
+  border: 0;
+  background: #090a0d;
+}
+
 .resonance {
   position: relative;
   width: 100%;
