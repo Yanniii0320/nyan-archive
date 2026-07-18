@@ -69,7 +69,7 @@ const timelineStories = {
       title: "The Orphic Passage",
       type: "FILM / MOVING IMAGE",
       description: "A passage through memory, ritual and the unstable boundary between image and consciousness.",
-      target: "./the-orphic-passage.html",
+      target: "./the-orphic-passage.html?rev=20260718-03",
       image: "./assets/liminal.png",
       coverClass: "timeline-item__image--vimeo"
     },
@@ -80,7 +80,7 @@ const timelineStories = {
       type: "AUDIO REACTIVE / WEBGL",
       description: "A fluid field that changes density through gesture, sound and bass frequency.",
       embed: "./liquid-noise-audio-reactive.html",
-      target: "./liquid-noise-audio-reactive.html",
+      target: "./liquid-noise-audio-reactive.html?rev=20260718-03",
       coverClass: "timeline-item__image--liquid"
     },
     {
@@ -89,7 +89,7 @@ const timelineStories = {
       title: "Call Me by Your Name",
       type: "INTERACTIVE POETRY / PARTICLE FIELD",
       description: "A concrete poem made from letters: held, pulled into orbit, and returned to language.",
-      target: "./concrete-poem.html",
+      target: "./concrete-poem.html?rev=20260718-03",
       poem: true,
       coverClass: "timeline-item__image--poem"
     }
@@ -102,7 +102,7 @@ const timelineStories = {
       type: "BRAND / PACKAGING / EMOTION",
       description: "把情绪想象成可以补充的维他命：从品牌语气、标志实验到一整套色彩鲜明的包装系统。",
       image: "./assets/portfolio/pathos-23.jpg",
-      target: "./project-pathos.html"
+      target: "./project-pathos.html?rev=20260718-03"
     },
     {
       date: "2025",
@@ -111,7 +111,7 @@ const timelineStories = {
       type: "IP DESIGN / CHARACTER SYSTEM",
       description: "为 X11 建立的蓝色角色系统：从造型比例、表情语言到包装和线下物料的延展。",
       image: "./assets/portfolio/x11-04.jpg",
-      target: "./project-x11.html"
+      target: "./project-x11.html?rev=20260718-03"
     },
     {
       date: "NEXT",
@@ -157,7 +157,7 @@ const timelineStories = {
       type: "VIBE CODING / INTERACTIVE TOOLS",
       description: "一个专门收藏生成器、浏览器实验与小型互动工具的入口。先从磨砂玻璃图像生成器开始。",
       image: "./assets/afterlight.png",
-      target: "./vibe-lab.html"
+      target: "./vibe-lab.html?rev=20260718-03"
     },
     {
       date: "2024.07",
@@ -198,7 +198,7 @@ function buildTimeline(worldKey) {
   timelineRail.innerHTML = stories.map((story, index) => {
     const interactive = Boolean(story.target);
     const media = story.poem
-      ? `<div class="timeline-item__poem-cover"><span>FLOAT</span><span>IN THE FLOW</span><i></i><b></b></div>`
+        ? `<div class="timeline-item__poem-cover"><span>FLOAT</span><span>IN THE FLOW</span><i></i><b></b></div>`
       : story.placeholder
         ? `<div class="timeline-item__placeholder"><span>IN<br>FORMATION</span><i></i></div>`
         : story.embed
