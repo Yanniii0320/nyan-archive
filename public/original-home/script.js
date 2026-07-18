@@ -157,7 +157,7 @@ const timelineStories = {
       type: "VIBE CODING / INTERACTIVE TOOLS",
       description: "一个专门收藏生成器、浏览器实验与小型互动工具的入口。先从磨砂玻璃图像生成器开始。",
       image: "./assets/afterlight.png",
-      target: "./vibe-lab.html?rev=20260718-04"
+      target: "./vibe-lab.html?rev=20260718-05"
     },
     {
       date: "2024.07",
