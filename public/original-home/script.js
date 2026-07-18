@@ -102,7 +102,7 @@ const timelineStories = {
       type: "BRAND / PACKAGING / EMOTION",
       description: "把情绪想象成可以补充的维他命：从品牌语气、标志实验到一整套色彩鲜明的包装系统。",
       image: "./assets/portfolio/pathos-23.jpg",
-      target: "./project-pathos.html?rev=20260718-03"
+      target: "./project-pathos.html?rev=20260718-04"
     },
     {
       date: "2025",
@@ -157,7 +157,7 @@ const timelineStories = {
       type: "VIBE CODING / INTERACTIVE TOOLS",
       description: "一个专门收藏生成器、浏览器实验与小型互动工具的入口。先从磨砂玻璃图像生成器开始。",
       image: "./assets/afterlight.png",
-      target: "./vibe-lab.html?rev=20260718-03"
+      target: "./vibe-lab.html?rev=20260718-04"
     },
     {
       date: "2024.07",
