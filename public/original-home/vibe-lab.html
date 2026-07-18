@@ -25,8 +25,8 @@
       <aside class="panel"><span class="tool-tag">TOOL 001 / LIVE</span><h3>磨砂玻璃<br>图像生成器</h3>
         <div class="preset-row" aria-label="样式预设"><button class="preset is-active" data-preset="soft">SOFT</button><button class="preset" data-preset="ice">ICE</button><button class="preset" data-preset="milk">MILK</button></div>
         <div class="field"><label for="format">导出画幅</label><select class="format-select" id="format"><option value="1600x1000">16:10 / Desktop</option><option value="1080x1080">1:1 / Square</option><option value="1080x1350">4:5 / Feed</option><option value="1080x1920">9:16 / Story</option></select></div>
-        <div class="control"><label for="blur">BLUR</label><input id="blur" type="range" min="12" max="96" value="58"><output>58</output></div>
-        <div class="control"><label for="opacity">FROST</label><input id="opacity" type="range" min="20" max="96" value="78"><output>78</output></div>
+        <div class="control"><label for="blur">BLUR</label><input id="blur" type="range" min="24" max="180" value="118"><output>118</output></div>
+        <div class="control"><label for="opacity">FROST</label><input id="opacity" type="range" min="45" max="100" value="95"><output>95</output></div>
         <div class="control"><label for="grain">GRAIN</label><input id="grain" type="range" min="0" max="24" value="10"><output>10</output></div>
         <div class="actions"><label class="upload" for="upload">上传或拖入自己的图片<input id="upload" type="file" accept="image/png,image/jpeg,image/webp"></label><button id="shuffle">换背景</button><button id="reset">重置</button><button id="save">下载效果图</button></div>
         <p class="note">下载内容只有处理后的效果图：不含边框、文字或网页元素。上传图片只在你的浏览器中处理。</p>
@@ -36,8 +36,8 @@
   </main>
   <script>
     const stage=document.querySelector('#stage'),previewCanvas=document.querySelector('#previewCanvas'),previewContext=previewCanvas.getContext('2d');
-    const defaults={blur:58,opacity:78,grain:10};
-    const presets={soft:{blur:44,opacity:62,grain:10},ice:{blur:68,opacity:86,grain:4},milk:{blur:34,opacity:90,grain:16}};
+    const defaults={blur:118,opacity:95,grain:10};
+    const presets={soft:{blur:82,opacity:86,grain:10},ice:{blur:142,opacity:98,grain:4},milk:{blur:58,opacity:100,grain:16}};
     const images=['afterlight.png','liminal.png','buffer.png','residue.png'];let imageIndex=0,currentImageSrc='./assets/afterlight.png';const sourceImage=new Image();
     const $=selector=>document.querySelector(selector);
     function selectedSize(){return $('#format').value.split('x').map(Number)}
