@@ -17,4 +17,5 @@
     function animate(){t++;items=items.filter(o=>o.life>.04);items.forEach(o=>{o.angle+=o.spin;o.r+=.2;o.x+=(mouse.x-o.x)*.002;o.y+=(mouse.y-o.y)*.002;o.life*=.9985;o.el.style.transform=`translate(${o.x+Math.cos(o.angle)*o.r}px,${o.y+Math.sin(o.angle)*o.r}px) rotate(${o.angle*.2}rad)`;o.el.style.opacity=Math.min(.88,o.life)});requestAnimationFrame(animate)}
     add(innerWidth*.5,innerHeight*.52);add(innerWidth*.5,innerHeight*.52);animate();addEventListener('pointermove',e=>{mouse={x:e.clientX,y:e.clientY};document.documentElement.style.setProperty('--x',e.clientX+'px');document.documentElement.style.setProperty('--y',e.clientY+'px')});addEventListener('pointerdown',e=>add(e.clientX,e.clientY));addEventListener('resize',()=>mouse={x:innerWidth/2,y:innerHeight/2});
   </script>
+<script src="./portal-nav.js"></script>
 </body></html>

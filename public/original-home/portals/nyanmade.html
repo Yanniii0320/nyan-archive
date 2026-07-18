@@ -120,5 +120,6 @@
             if (bunnyElement) { bunnyElement.addEventListener('click', () => { bunnyElement.style.transform = 'translateX(-50%) scale(1.2) rotate(10deg)'; setTimeout(() => { if (bunnyElement.matches(':hover')) { bunnyElement.style.transform = 'translateX(-50%) scale(1.1) rotate(-5deg)'; } else { bunnyElement.style.transform = 'translateX(-50%)'; } }, 150); }); bunnyElement.addEventListener('mouseleave', () => { setTimeout(() => { if (bunnyElement.style.transform.includes('scale(1.2)')) return; bunnyElement.style.transform = 'translateX(-50%)'; }, 50); }); bunnyElement.addEventListener('mouseenter', () => { if (!bunnyElement.style.transform.includes('scale(1.2)')) { bunnyElement.style.transform = 'translateX(-50%) scale(1.1) rotate(-5deg)'; } }); }
         });
     </script>
+<script src="./portal-nav.js"></script>
 </body>
 </html>

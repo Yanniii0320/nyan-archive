@@ -187,29 +187,13 @@ const timelineStories = {
   ],
   afterlight: [
     {
-      date: "2025.05",
-      index: "01 / 03",
-      title: "Float in the Flow",
-      type: "VIBE CODING / INTERACTIVE TOOLS",
-      description: "一个专门收藏生成器、浏览器实验与小型互动工具的入口。先从磨砂玻璃图像生成器开始。",
+      date: "2026",
+      index: "01 / 01",
+      title: "Voguing.",
+      type: "MOVEMENT / IMAGE / FROST STUDIO",
+      description: "一段关于姿态、节奏与余像的网页实验。用磨砂、光和色彩保存身体移动过的痕迹。",
       image: "./assets/afterlight.png",
       target: "./vibe-lab.html?rev=20260718-07"
-    },
-    {
-      date: "2024.07",
-      index: "02 / 03",
-      title: "Sound Drawing Machine",
-      type: "PHYSICAL COMPUTING",
-      description: "声音被翻译成轨迹，再被一支笔缓慢写到纸上。它像一段不愿被忘记的呼吸。",
-      image: "./assets/buffer.png"
-    },
-    {
-      date: "2023.10",
-      index: "03 / 03",
-      title: "Field of Small Things",
-      type: "ARCHIVE / RESEARCH",
-      description: "收集那些不足以成为事件的时刻：一片草、一阵风、一次没有结论的停留。",
-      image: "./assets/liminal.png"
     }
   ]
 };
