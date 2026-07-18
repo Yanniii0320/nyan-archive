@@ -49,7 +49,7 @@
   <div class="title">LIQUID NOISE<br><span class="line">audio / bass / fluid reflection</span></div>
   <button id="sound">enable<br>sound<span class="line">use microphone</span></button>
   <div class="meta" id="status">move the cursor through light<br>click to shift the density</div>
-  <a class="back" id="back" href="./index.html">← BUFFER</a>
+  <a class="back" id="back" href="./index.html?return=1">← BUFFER</a>
 </div>
 <div class="page-fade" aria-hidden="true"></div>
 
@@ -292,8 +292,7 @@
     // frame visible beneath the short dissolve.
     if (audio.active && audio.analyser?.context) audio.analyser.context.suspend().catch(() => {});
     setTimeout(() => {
-      if (history.length > 1 && document.referrer.includes(location.host)) history.back();
-      else location.href = back.href;
+      location.href = back.href;
     }, 300);
   });
 })();

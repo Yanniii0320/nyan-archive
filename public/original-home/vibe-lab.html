@@ -17,7 +17,7 @@
 </head>
 <body>
   <div class="ambient"></div><div class="grain"></div>
-  <header><a class="back" id="back" href="./index.html">← AFTERIMAGE</a><span class="mark">04 / FROST STUDIO</span></header>
+  <header><a class="back" id="back" href="./index.html?return=1">← AFTERIMAGE</a><span class="mark">04 / FROST STUDIO</span></header>
   <main>
     <section class="intro"><div><span class="eyebrow">NÝAN.ARCHIVE / PRACTICAL BROWSER TOOL</span><h1>FROST<br>STUDIO</h1></div><p>将任何图片变成可直接使用的磨砂玻璃效果图。选择画幅、上传图像、调节质感，再下载一张干净的 PNG。</p></section>
     <section class="tool">
@@ -54,7 +54,7 @@
     $('#shuffle').onclick=()=>{imageIndex=(imageIndex+1)%images.length;setSource(`./assets/${images[imageIndex]}`)};
     $('#reset').onclick=()=>{Object.entries(defaults).forEach(([key,value])=>$('#'+key).value=value);document.querySelectorAll('.preset').forEach((item,index)=>item.classList.toggle('is-active',index===0));updatePreview()};
     $('#save').onclick=()=>{renderPreview();const link=document.createElement('a');link.download='nyan-afterimage-frost.png';link.href=previewCanvas.toDataURL('image/png');link.click()};
-    $('#back').onclick=event=>{event.preventDefault();if(history.length>1&&document.referrer.includes(location.host))history.back();else location.href=event.currentTarget.href};setSource(currentImageSrc);
+    $('#back').onclick=event=>{event.preventDefault();location.href=event.currentTarget.href};setSource(currentImageSrc);
   </script>
 </body>
 </html>

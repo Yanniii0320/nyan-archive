@@ -2,7 +2,7 @@ export default function Home() {
   return (
     <iframe
       className="original-home"
-      src="/original-home/index.html?rev=20260718-09"
+      src="/original-home/index.html?rev=20260718-10"
       title="NÝAN.ARCHIVE"
     />
   );

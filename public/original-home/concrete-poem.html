@@ -24,7 +24,7 @@
 </head>
 <body>
 <canvas id="poem"></canvas><div class="grain"></div><div class="vignette"></div>
-<header class="top"><a class="back" id="back" href="./index.html">← BUFFER</a><div class="meta">03 / 03<br>CALL ME BY YOUR NAME</div></header>
+<header class="top"><a class="back" id="back" href="./index.html?return=1">← BUFFER</a><div class="meta">03 / 03<br>CALL ME BY YOUR NAME</div></header>
 <div class="title"><p id="whisper">in the midst of winter / i found within me</p></div>
 <div class="caption">A CAMUS FIELD / LETTERS BECOME MATTER<br>HOLD + DRAG TO BEND THE SPACE</div>
 <div class="hint" id="hint">CLICK TO SHIFT THE FRAGMENT</div><div class="space-readout" id="readout">ORBIT FIELD / RELEASE TO RETURN</div><div class="cursor" id="cursor"></div>
@@ -71,7 +71,7 @@
  hubHead.addEventListener('click',()=>hub.classList.toggle('is-open'));sizeControl.addEventListener('input',e=>state.particleSize=+e.target.value);densityControl.addEventListener('input',e=>{state.maxParticles=+e.target.value;buildTargets();});orbitControl.addEventListener('input',e=>state.orbit=+e.target.value);
  document.querySelectorAll('.swatch').forEach(el=>el.addEventListener('click',()=>{document.querySelectorAll('.swatch').forEach(x=>x.classList.remove('active'));el.classList.add('active');state.color=el.dataset.color.split(',').map(Number);setAccent(state.color);}));
  addEventListener('resize',resize);resize();whisper.textContent=fragments[0].join(' / ');requestAnimationFrame(draw);
- document.querySelector('#back').addEventListener('click',e=>{e.preventDefault();if(history.length>1&&document.referrer.includes(location.host))history.back();else location.href=e.currentTarget.href;});
+ document.querySelector('#back').addEventListener('click',e=>{e.preventDefault();location.href=e.currentTarget.href;});
 })();
 </script>
 </body>

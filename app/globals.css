@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import url("https://fonts.googleapis.com/css2?family=Italianno&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap");
 
 :root {
   color-scheme: dark;
@@ -159,12 +159,12 @@ a { cursor: none; }
 .threshold h1 {
   margin: 0;
   color: rgba(244, 247, 255, 0.86);
-  font-family: "Italianno", "Apple Chancery", "Snell Roundhand", cursive;
-  font-size: clamp(88px, 13vw, 208px);
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(70px, 10vw, 164px);
+  font-style: italic;
   font-weight: 400;
-  line-height: 0.62;
-  letter-spacing: 0.05em;
-  text-indent: 0.05em;
+  line-height: 0.72;
+  letter-spacing: -0.07em;
   text-shadow: 0 0 42px rgba(189, 203, 255, 0.26);
 }
 
@@ -225,7 +225,7 @@ a { cursor: none; }
 @media (max-width: 700px) {
   body { cursor: auto; }
   .archive-mark { font-size: 9px; }
-  .threshold h1 { font-size: 24vw; letter-spacing: 0.03em; text-indent: 0.03em; }
+  .threshold h1 { font-size: 19vw; letter-spacing: -0.06em; }
   .contact-echo { bottom: 28px; font-size: 9px; }
 }
 

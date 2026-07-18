@@ -24,7 +24,7 @@
     <video id="film" src="./assets/the-orphic-passage.mp4" autoplay controls playsinline preload="auto" aria-label="The Orphic Passage"></video>
   </main>
   <button class="sound-entry is-hidden" id="soundEntry" type="button">ENTER<br>WITH SOUND</button>
-  <a class="back" id="back" href="./index.html">← BUFFER</a>
+  <a class="back" id="back" href="./index.html?return=1">← BUFFER</a>
   <h1 class="title">The Orphic Passage</h1>
   <script>
     const film = document.querySelector('#film');
@@ -44,8 +44,7 @@
     document.querySelector('#back').addEventListener('click', (event) => {
       event.preventDefault();
       if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-      if (history.length > 1 && document.referrer.includes(location.host)) history.back();
-      else location.href = event.currentTarget.href;
+      location.href = event.currentTarget.href;
     });
   </script>
 </body>

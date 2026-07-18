@@ -733,6 +733,15 @@ function enterWorld() {
     return;
   }
 
+  // PORTAL has no directory: the butterfly drops straight into one unknown page.
+  if (world.key === "buffer") {
+    sessionStorage.setItem("nyanArchiveReturn", JSON.stringify({ world: current, timelineX: 0 }));
+    setTimeout(() => {
+      window.location.assign("./portals/random-door.html");
+    }, 420);
+    return;
+  }
+
   // Prepare the destination while the transition is still transparent. Keeping
   // this work ahead of the visible cross-fade avoids a blank/jumped frame.
   subpageCanvasRenderer.loadTexture(world.asset);
@@ -901,9 +910,37 @@ const savedReturn = (() => {
   catch { return null; }
 })();
 
-if (savedReturn && Number.isInteger(savedReturn.world)) current = savedReturn.world;
+const route = new URLSearchParams(window.location.search);
+const requestedWorld = route.get("world");
+const requestedIndex = worlds.findIndex((world) => world.key === requestedWorld || (requestedWorld === "portal" && world.key === "buffer"));
+const shouldReopenParent = route.get("return") === "1";
+
+if (requestedIndex >= 0) current = requestedIndex;
+else if (savedReturn && Number.isInteger(savedReturn.world)) current = savedReturn.world;
 applyWorld(current, true);
 createAmbient();
+
+// A project is a third layer. Returning from it reopens the parent archive page,
+// rather than dropping the visitor all the way back at the main butterfly.
+if (shouldReopenParent && savedReturn && Number.isInteger(savedReturn.world)) {
+  setTimeout(() => {
+    const parent = worlds[savedReturn.world];
+    if (!parent || parent.key === "buffer" || parent.key === "residue") return;
+    subpageCanvasRenderer.loadTexture(parent.asset);
+    subpage.dataset.world = parent.key;
+    subpageWorld.textContent = `0${savedReturn.world + 1} / ${parent.name}`;
+    subpageTitle.textContent = parent.name;
+    subpageBody.textContent = parent.sub;
+    buildTimeline(parent.key);
+    butterfly.style.opacity = "0";
+    subpage.classList.add("is-open");
+    subpage.setAttribute("aria-hidden", "false");
+    requestAnimationFrame(() => {
+      timelineState.targetX = Number.isFinite(savedReturn.timelineX) ? savedReturn.timelineX : 0;
+      updateTimeline(true);
+    });
+  }, 220);
+}
 
 window.addEventListener("pageshow", (event) => {
   projectOpening = false;
