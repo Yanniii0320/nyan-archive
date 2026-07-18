@@ -705,9 +705,18 @@ function enterWorld() {
   transition.classList.add("is-active");
   transition.setAttribute("aria-hidden", "false");
 
+  // RESONANCE is a single artwork, not an archive category. Enter it directly.
+  if (world.key === "residue") {
+    setTimeout(() => {
+      window.top.location.assign("/resonance");
+    }, 420);
+    return;
+  }
+
   // Prepare the destination while the transition is still transparent. Keeping
   // this work ahead of the visible cross-fade avoids a blank/jumped frame.
   subpageCanvasRenderer.loadTexture(world.asset);
+  subpage.dataset.world = world.key;
   subpageWorld.textContent = `0${current + 1} / ${world.name}`;
   subpageTitle.textContent = world.name;
   subpageBody.textContent = world.sub;

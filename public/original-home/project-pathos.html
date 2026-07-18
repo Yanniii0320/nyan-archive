@@ -1,5 +1,67 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PATHOS — NÝAN.ARCHIVE</title><link rel="stylesheet" href="./project-style.css"></head><body class="pathos">
-<header class="top"><a class="back" href="./index.html">← ARTIFACT</a><span>01 / 02</span></header>
-<main><section class="hero"><div><span class="kicker">BRAND / PACKAGING / 2024</span><h1>PATHOS</h1></div><div><p class="intro">情绪不是需要被隐藏的问题，而是每天都可以被看见、被补充的一种营养。</p><div class="meta"><span>情绪补充剂</span><span>品牌设计 / 包装</span><span>PS / AI</span></div></div></section>
-<section class="works"><figure><img src="./assets/portfolio/pathos-23.jpg" alt="PATHOS 情绪维他命项目概念"><figcaption>01 / CONCEPT — EMOTION VITAMIN</figcaption></figure><figure><img src="./assets/portfolio/pathos-24.jpg" alt="PATHOS 品牌调性"><figcaption>02 / BRAND TONE</figcaption></figure><figure><img src="./assets/portfolio/pathos-25.jpg" alt="PATHOS 标志实验"><figcaption>03 / LOGO SYSTEM</figcaption></figure><figure><img src="./assets/portfolio/pathos-26.jpg" alt="PATHOS 包装系统"><figcaption>04 / PACKAGING FAMILY</figcaption></figure></section>
-<section class="closing"><p>把抽象的情绪，变成可以拿在手中、分享给别人的视觉语言。</p></section></main><script>document.querySelector('.back').onclick=e=>{e.preventDefault();history.length>1?history.back():location.href=e.currentTarget.href}</script></body></html>
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PATHOS — NÝAN.ARCHIVE</title>
+  <link rel="stylesheet" href="./pathos.css">
+</head>
+<body>
+  <header class="site-header grid">
+    <a class="back" href="./index.html">← ARTIFACT</a>
+    <span class="page-index">01 / 02</span>
+  </header>
+
+  <main>
+    <section class="project-intro grid" aria-labelledby="project-title">
+      <div class="project-id">NÝAN.ARCHIVE / ARTIFACT / 2024</div>
+      <div class="title-block">
+        <p class="label">BRAND IDENTITY · PACKAGING</p>
+        <h1 id="project-title">PATHOS<span>情绪维他命</span></h1>
+      </div>
+      <div class="project-deck">
+        <p>情绪不是需要被隐藏的问题，而是一种可以被看见、被命名、被补充的日常营养。</p>
+        <dl class="project-facts">
+          <div><dt>DISCIPLINE</dt><dd>品牌策略 / 视觉识别 / 包装</dd></div>
+          <div><dt>TOOLS</dt><dd>Photoshop / Illustrator / AI</dd></div>
+          <div><dt>FOCUS</dt><dd>将抽象感受转译为可分享的物件</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="visual-system grid" aria-label="PATHOS visual system">
+      <figure class="visual visual--hero">
+        <img src="./assets/portfolio/pathos-23.jpg" alt="PATHOS 情绪维他命项目概念">
+        <figcaption><span>01</span> CONCEPT / EMOTION VITAMIN</figcaption>
+      </figure>
+      <div class="project-statement">
+        <span class="label">PROJECT NOTE</span>
+        <p>PATHOS 把难以描述的感受变成一组可以选择、携带和赠予的视觉剂量。鲜明色彩与柔软语言，让“情绪”从负担变成一种被照顾的状态。</p>
+      </div>
+      <figure class="visual visual--half">
+        <img src="./assets/portfolio/pathos-24.jpg" alt="PATHOS 品牌调性">
+        <figcaption><span>02</span> BRAND TONE</figcaption>
+      </figure>
+      <figure class="visual visual--half">
+        <img src="./assets/portfolio/pathos-25.jpg" alt="PATHOS 标志实验">
+        <figcaption><span>03</span> LOGO SYSTEM</figcaption>
+      </figure>
+      <figure class="visual visual--wide">
+        <img src="./assets/portfolio/pathos-26.jpg" alt="PATHOS 包装系统">
+        <figcaption><span>04</span> PACKAGING FAMILY</figcaption>
+      </figure>
+    </section>
+
+    <section class="closing grid">
+      <p>把抽象的情绪，变成可以拿在手中、分享给别人的视觉语言。</p>
+    </section>
+  </main>
+
+  <script>
+    document.querySelector('.back').onclick = event => {
+      event.preventDefault();
+      history.length > 1 ? history.back() : location.href = event.currentTarget.href;
+    };
+  </script>
+</body>
+</html>
