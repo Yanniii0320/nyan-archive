@@ -31,13 +31,13 @@ const worlds = [
   },
   {
     key: "buffer",
-    name: "ARTIFACT",
-    cn: "缓冲地带",
+    name: "PORTAL",
+    cn: "任意入口",
     asset: "./assets/buffer.png",
     rgb: "255, 205, 147",
     hue: "24deg",
-    description: "水面、建筑与风中的窗帘。<br>在混沌与秩序之间，等待形状出现。",
-    sub: "品牌识别、视觉系统、包装与空间化表达。关于从无到有，以及让结构变得可以被感知。"
+    description: "这里没有固定的作品类别。<br>每一次点击，都可能进入另一个网页宇宙。",
+    sub: "六个网页、六种语法。可以挑选一扇门，也可以让随机性替你决定下一次抵达。"
   },
   {
     key: "residue",
@@ -96,31 +96,67 @@ const timelineStories = {
   ],
   buffer: [
     {
-      date: "2024",
-      index: "01 / 03",
-      title: "PATHOS / 情绪维他命",
-      type: "BRAND / PACKAGING / EMOTION",
-      description: "把情绪想象成可以补充的维他命：从品牌语气、标志实验到一整套色彩鲜明的包装系统。",
-      image: "./assets/portfolio/pathos-23.jpg",
-      target: "./project-pathos.html?rev=20260718-04"
+      date: "∞",
+      index: "01 / 07",
+      title: "OPEN A RANDOM DOOR",
+      type: "UNSTABLE PORTAL / LET CHANCE CHOOSE",
+      description: "不需要先决定。进入以后再知道自己要去哪里。",
+      image: "./assets/residue.png",
+      target: "./portals/random-door.html"
+    },
+    {
+      date: "2026",
+      index: "02 / 07",
+      title: "Orbit Letters",
+      type: "INTERACTIVE TYPE / PRIVATE GRAVITY",
+      description: "点击放出一句话，它会记住你的移动，并在指针周围慢慢绕行。",
+      image: "./assets/liminal.png",
+      target: "./portals/orbit-letters.html"
+    },
+    {
+      date: "2026",
+      index: "03 / 07",
+      title: "Soft Forecast",
+      type: "WEATHER FICTION / CLICK TO CHANGE",
+      description: "一份给不存在地点的天气预报。每一次点击都让气候和句子重新发生。",
+      image: "./assets/afterlight.png",
+      target: "./portals/soft-forecast.html"
+    },
+    {
+      date: "2026",
+      index: "04 / 07",
+      title: "Gentle Chaos",
+      type: "PARTICLE FIELD / TOUCH PHYSICS",
+      description: "一片不太听话的光点。它们会靠近你的手，但永远保留自己的节奏。",
+      image: "./assets/buffer.png",
+      target: "./portals/gentle-chaos.html"
+    },
+    {
+      date: "2026",
+      index: "05 / 07",
+      title: "Interactive Card Gallery",
+      type: "ARCHIVE / INTERACTIVE CARDS",
+      description: "你以前做的卡片实验：直接、明亮、像一本可以翻动的视觉索引。",
+      image: "./assets/buffer.png",
+      target: "./portals/card-gallery.html"
+    },
+    {
+      date: "2026",
+      index: "06 / 07",
+      title: "Virtual Enjoyment",
+      type: "THREE.JS / PARTICLE PLAYGROUND",
+      description: "粉色粒子组成的轻盈空间，一个很早就开始尝试浏览器氛围感的入口。",
+      image: "./assets/afterlight.png",
+      target: "./portals/virtual-enjoyment.html"
     },
     {
       date: "2025",
-      index: "02 / 03",
-      title: "DUDU4X11",
-      type: "IP DESIGN / CHARACTER SYSTEM",
-      description: "为 X11 建立的蓝色角色系统：从造型比例、表情语言到包装和线下物料的延展。",
-      image: "./assets/portfolio/x11-04.jpg",
-      target: "./project-x11.html?rev=20260718-03"
-    },
-    {
-      date: "NEXT",
-      index: "03 / 03",
-      title: "Untitled / 留白",
-      type: "PERSONAL PROJECT / IN DEVELOPMENT",
-      description: "第三个位置暂时不需要被商业项目填满。等一个真正喜欢、愿意长期保留的作品出现。",
-      placeholder: true,
-      coverClass: "timeline-item__image--placeholder"
+      index: "07 / 07",
+      title: "NyanMade",
+      type: "MATTER.JS / LITTLE PHYSICS",
+      description: "番茄、蓝莓和可拖动的重力。让网页先成为一个好玩的地方。",
+      image: "./assets/residue.png",
+      target: "./portals/nyanmade.html"
     }
   ],
   residue: [

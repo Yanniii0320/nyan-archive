@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Orbit Letters — NÝAN.ARCHIVE</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Libre+Baskerville:ital@0;1&display=swap');
+    *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#101018;color:#f2eee7}body{font-family:"DM Mono",monospace;cursor:crosshair}.night{position:fixed;inset:0;background:radial-gradient(circle at var(--x,50%) var(--y,50%),#32303e 0,rgba(38,34,51,.75) 12%,transparent 38%),radial-gradient(circle at 78% 18%,#3b2e3c,transparent 32%),#101018}.grain{position:fixed;inset:0;pointer-events:none;opacity:.17;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 130 130' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");mix-blend-mode:soft-light}header{position:fixed;z-index:4;inset:0 0 auto;padding:24px 28px;display:flex;justify-content:space-between;font-size:9px;letter-spacing:.18em}.back{color:inherit;text-decoration:none;opacity:.65}#field{position:fixed;inset:0}.word{position:absolute;left:0;top:0;will-change:transform;color:rgba(242,238,231,.86);font-family:"Libre Baskerville",serif;font-size:clamp(15px,2vw,32px);font-style:italic;white-space:nowrap;pointer-events:none;mix-blend-mode:screen}.word i{font:8px "DM Mono",monospace;letter-spacing:.12em;font-style:normal;color:#d4a8c8;margin-right:9px}.center{position:fixed;z-index:2;left:50%;top:50%;translate:-50% -50%;width:min(72vw,680px);text-align:center;pointer-events:none;transition:opacity .8s}.center h1{margin:0;font:italic clamp(43px,8.5vw,126px)/.86 "Libre Baskerville",serif;letter-spacing:-.08em}.center p{margin:23px 0 0;font-size:9px;letter-spacing:.19em;opacity:.56}.hint{position:fixed;z-index:3;left:50%;bottom:26px;translate:-50%;font-size:8px;letter-spacing:.18em;opacity:.5;white-space:nowrap}@media(max-width:700px){header{padding:20px}.word{font-size:18px}}
+  </style>
+</head>
+<body>
+  <div class="night"></div><div class="grain"></div><header><a class="back" href="../index.html">← PORTAL</a><span>06 / ORBIT LETTERS</span></header><div id="field"></div><section class="center" id="center"><h1>things that<br>refuse to land</h1><p>CLICK TO LET A THOUGHT ESCAPE</p></section><p class="hint">move slowly — the words remember your orbit</p>
+  <script>
+    const words=['the blue hour','almost touching','a small permission','soft evidence','not yet named','borrowed weather','stay strange','a room inside rain','tender machinery','the shape of maybe','do not resolve'];
+    const field=document.querySelector('#field'),center=document.querySelector('#center');let items=[],t=0,mouse={x:innerWidth/2,y:innerHeight/2};
+    function add(x=mouse.x,y=mouse.y){const el=document.createElement('span');el.className='word';el.innerHTML=`<i>${String(items.length+1).padStart(2,'0')}</i>${words[Math.floor(Math.random()*words.length)]}`;field.append(el);items.push({el,x,y,angle:Math.random()*6.28,r:24+Math.random()*75,spin:(Math.random()-.5)*.012,life:1});center.style.opacity=0}
+    function animate(){t++;items=items.filter(o=>o.life>.04);items.forEach(o=>{o.angle+=o.spin;o.r+=.2;o.x+=(mouse.x-o.x)*.002;o.y+=(mouse.y-o.y)*.002;o.life*=.9985;o.el.style.transform=`translate(${o.x+Math.cos(o.angle)*o.r}px,${o.y+Math.sin(o.angle)*o.r}px) rotate(${o.angle*.2}rad)`;o.el.style.opacity=Math.min(.88,o.life)});requestAnimationFrame(animate)}
+    add(innerWidth*.5,innerHeight*.52);add(innerWidth*.5,innerHeight*.52);animate();addEventListener('pointermove',e=>{mouse={x:e.clientX,y:e.clientY};document.documentElement.style.setProperty('--x',e.clientX+'px');document.documentElement.style.setProperty('--y',e.clientY+'px')});addEventListener('pointerdown',e=>add(e.clientX,e.clientY));addEventListener('resize',()=>mouse={x:innerWidth/2,y:innerHeight/2});
+  </script>
+</body></html>

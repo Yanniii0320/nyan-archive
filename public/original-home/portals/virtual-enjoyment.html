@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Enjoyment - Interactive Particles</title>
+    <style>
+        :root {
+            --bg-color: #fceff9; /* Light pink background */
+            --text-color: #8a2be2; /* Purple/Deep Pink text */
+            --particle-color: #e75480; /* Pink for particles */
+            --border-color: #d8bfd8; /* Lighter purple/pink for borders */
+            --hover-bg-color: #fdf5fa; /* Slightly lighter pink for hover */
+            --hover-border-color: #c8a2c8; /* Slightly darker border on hover */
+            --menu-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Prevent body scroll, interaction is JS controlled */
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0; /* Behind content */
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .content-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            z-index: 1; /* Above canvas */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* --- Top Bar --- */
+         .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 10; /* High z-index */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .top-button {
+            padding: 5px 15px;
+            background-color: var(--particle-color);
+            color: white;
+            border: none;
+            border-radius: 3px;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .top-button:hover {
+             background-color: #d6436f; /* Slightly darker pink on hover */
+         }
+
+        .top-button.left {
+             /* No specific styles needed now */
+         }
+         .top-button.right {
+             background-color: transparent;
+             border: 1px solid var(--border-color);
+             color: var(--text-color);
+         }
+          .top-button.right:hover {
+              background-color: rgba(216, 191, 216, 0.2); /* Slight bg on hover */
+              border-color: var(--text-color);
+          }
+
+
+        /* --- Lecture Button Menu --- */
+        .lecture-button-wrapper {
+            position: relative; /* Anchor for the absolute positioned menu */
+        }
+
+        #lecture-menu {
+            position: absolute;
+            top: calc(100% + 5px); /* Position below the button with a small gap */
+            left: 0;
+            background-color: var(--menu-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 5px 0;
+            min-width: 150px;
+            z-index: 11; /* Above top bar */
+            list-style: none; /* Remove default list styling */
+
+            /* Hidden state */
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s;
+        }
+
+        #lecture-menu.active {
+            /* Visible state */
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0s;
+        }
+
+        #lecture-menu a {
+            display: block;
+            padding: 8px 15px;
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: background-color 0.2s ease;
+        }
+
+        #lecture-menu a:hover {
+            background-color: var(--bg-color); /* Use main bg color for hover */
+        }
+
+
+        /* --- Header --- */
+        .main-header {
+             margin-top: 60px; /* Space below top bar */
+             padding: 10px 20px;
+             font-size: 1.8em;
+             font-weight: bold;
+             letter-spacing: 2px;
+             z-index: 1;
+             text-align: center;
+             color: var(--text-color);
+             position: relative; /* Needed for z-index stacking if content overlaps */
+         }
+
+        /* --- Footer --- */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 15px;
+            flex-wrap: wrap;
+            z-index: 1; /* Above canvas, below menu potentially */
+             pointer-events: none; /* Allow clicks/scrolls to pass through footer */
+        }
+
+        .info-box {
+            border: 1px solid var(--border-color);
+            padding: 10px 15px;
+            background-color: rgba(252, 239, 249, 0.8);
+            max-width: 220px;
+            font-size: 0.8em;
+            line-height: 1.4;
+            color: var(--text-color);
+             pointer-events: auto; /* Make info boxes interactive again */
+             flex-grow: 0;
+             flex-shrink: 0;
+             border-radius: 3px; /* Slightly rounded corners */
+             box-shadow: 0 2px 4px rgba(0,0,0, 0.05); /* Subtle base shadow */
+             /* --- HOVER TRANSITION --- */
+             transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* --- INFO BOX HOVER EFFECT --- */
+        .info-box:hover {
+            transform: translateY(-5px) scale(1.02); /* Lift and slightly enlarge */
+            background-color: rgba(253, 245, 250, 0.95); /* Lighter, less transparent bg */
+            border-color: var(--hover-border-color); /* Change border color */
+            box-shadow: 0 6px 12px rgba(138, 43, 226, 0.15); /* More prominent shadow */
+            cursor: pointer; /* Indicate interactivity */
+        }
+
+
+        .info-box h3 {
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .info-box p {
+             margin-bottom: 3px;
+         }
+         .info-box .date {
+             font-size: 0.85em;
+             opacity: 0.8;
+         }
+
+
+        /* --- Responsive adjustments --- */
+        @media (max-width: 768px) {
+             .main-header {
+                font-size: 1.5em;
+                 margin-top: 50px;
+             }
+             .top-bar {
+                 height: 35px;
+                 padding: 0 10px;
+             }
+             .top-button {
+                 font-size: 0.7em;
+                 padding: 4px 10px;
+             }
+             #lecture-menu {
+                 min-width: 130px;
+             }
+              #lecture-menu a {
+                  font-size: 0.8em;
+                  padding: 7px 12px;
+              }
+
+
+            footer {
+                padding: 10px;
+                gap: 10px;
+                justify-content: space-around;
+            }
+
+            .info-box {
+                max-width: 45%;
+                font-size: 0.75em;
+                padding: 8px 12px;
+            }
+             .info-box:hover { /* Adjust hover for smaller boxes */
+                 transform: translateY(-3px) scale(1.01);
+                 box-shadow: 0 4px 8px rgba(138, 43, 226, 0.1);
+             }
+        }
+
+        @media (max-width: 480px) {
+             .main-header {
+                font-size: 1.2em;
+                 margin-top: 45px;
+            }
+
+            footer {
+                 align-items: center;
+                 overflow-y: auto;
+                 max-height: 35%;
+            }
+
+            .info-box {
+                max-width: 85%;
+                width: 85%;
+                margin-bottom: 10px;
+                font-size: 0.7em;
+            }
+             .info-box:last-child {
+                 margin-bottom: 0;
+             }
+        }
+
+    </style>
+</head>
+<body>
+    <a href="../index.html" style="position:fixed;z-index:9999;top:18px;left:20px;color:#7c3553;background:rgba(255,255,255,.78);padding:8px 10px;text-decoration:none;font:9px monospace;letter-spacing:.14em">← PORTAL</a>
+    <!-- Top bar -->
+    <div class="top-bar">
+        <div class="lecture-button-wrapper">
+            <button id="lecture-button" class="top-button left">Lecture</button>
+            <!-- Lecture Menu (initially hidden) -->
+            <div id="lecture-menu">
+                <a href="#">Introduction</a>
+                <a href="#">Session 1</a>
+                <a href="#">Session 2</a>
+                <a href="#">Further Reading</a>
+                <a href="#">About</a>
+            </div>
+        </div>
+        <button class="top-button right">More</button>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="content-wrapper">
+        <header class="main-header">VIRTUAL ENJOYMENT</header>
+        <!-- Canvas will be injected here by JS -->
+         <footer>
+            <!-- Info Boxes remain the same -->
+            <div class="info-box">
+                <h3>Rachel Aunmiller</h3>
+                <p>Erotic Suspension:</p>
+                <p>The Transformation of Desire in Isolation</p>
+                <p class="date">27.02.2021</p>
+            </div>
+            <div class="info-box">
+                <h3>Hilda Fernandez-Alvarez</h3>
+                <p>Reloading malaise:</p>
+                <p>Cyborg Enjoyments and new social bonding, towards a discourse of nature</p>
+                <p class="date">20.03.2021</p>
+            </div>
+            <div class="info-box">
+                <h3>Samo Tomsic</h3>
+                <p>The Anti Sociality of Capitalism</p>
+                <p>(Some Reflections)</p>
+                <p class="date">17.04.2021</p>
+            </div>
+            <div class="info-box">
+                <h3>Todd McGowan</h3>
+                <p>The Enjoyment of Contradiction:</p>
+                <p>Politics and the Limit to Knowledge</p>
+                <p class="date">22.05.2021</p>
+            </div>
+             <div class="info-box" style="opacity: 0.6;">
+                 <h3>Sl...</h3>
+                 <p>Th...</p>
+                 <p>ca...</p>
+                 <p class="date">18...</p>
+             </div>
+        </footer>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <!-- Three.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        let scene, camera, renderer;
+        let particles;
+        let positions, spherePositions, cubePositions;
+        let targetShape = 0; // 0 for sphere, 1 for cube
+        let currentInterpolation = 0;
+        const interpolationSpeed = 0.05;
+
+        const PARTICLE_COUNT = 5000;
+        const PARTICLE_SIZE = 0.03;
+        const SPHERE_RADIUS = 1.5;
+        const CUBE_SIZE = 2.5;
+
+        // --- Menu Elements ---
+        const lectureButton = document.getElementById('lecture-button');
+        const lectureMenu = document.getElementById('lecture-menu');
+
+        function initThreeJS() {
+            // --- Scene Setup ---
+            scene = new THREE.Scene();
+
+            // --- Camera Setup ---
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 4;
+
+            // --- Renderer Setup ---
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setClearColor(0x000000, 0);
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            // --- Particle Geometry ---
+            const geometry = new THREE.BufferGeometry();
+            positions = new Float32Array(PARTICLE_COUNT * 3);
+            spherePositions = new Float32Array(PARTICLE_COUNT * 3);
+            cubePositions = new Float32Array(PARTICLE_COUNT * 3);
+
+            // --- Generate Sphere Positions (Fibonacci Lattice) ---
+            const phi = Math.PI * (3. - Math.sqrt(5.));
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                const y = 1 - (i / (PARTICLE_COUNT - 1)) * 2;
+                const radius = Math.sqrt(1 - y * y);
+                const theta = phi * i;
+                const x = Math.cos(theta) * radius;
+                const z = Math.sin(theta) * radius;
+                spherePositions[i * 3] = x * SPHERE_RADIUS;
+                spherePositions[i * 3 + 1] = y * SPHERE_RADIUS;
+                spherePositions[i * 3 + 2] = z * SPHERE_RADIUS;
+            }
+
+            // --- Generate Cube Positions (Random within volume) ---
+             const halfCubeSize = CUBE_SIZE / 2;
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                cubePositions[i * 3] = (Math.random() - 0.5) * CUBE_SIZE;
+                cubePositions[i * 3 + 1] = (Math.random() - 0.5) * CUBE_SIZE;
+                cubePositions[i * 3 + 2] = (Math.random() - 0.5) * CUBE_SIZE;
+            }
+
+            // --- Initialize positions array ---
+            for (let i = 0; i < positions.length; i++) {
+                positions[i] = spherePositions[i];
+            }
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+            // --- Particle Material ---
+             const particleColorHex = getComputedStyle(document.documentElement)
+                                       .getPropertyValue('--particle-color').trim();
+            const material = new THREE.PointsMaterial({
+                 color: particleColorHex || '#e75480',
+                size: PARTICLE_SIZE,
+                sizeAttenuation: true,
+                transparent: true,
+                opacity: 0.8
+            });
+
+            // --- Particle System ---
+            particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+
+            // --- Event Listeners (Three.js related) ---
+            window.addEventListener('resize', onWindowResize, false);
+            window.addEventListener('wheel', onMouseWheel, { passive: false });
+
+            // --- Start Animation ---
+            animate();
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function onMouseWheel(event) {
+            // Only process wheel event if the target is not inside the menu or the footer boxes
+            const isOverMenu = lectureMenu.contains(event.target);
+            const isOverFooterBox = event.target.closest('.info-box');
+
+             if (!isOverMenu && !isOverFooterBox) { // Allow scroll if not over menu/footer
+                 // event.preventDefault(); // Prevent default only if interacting with particles
+                 const scrollAmount = event.deltaY * 0.001;
+                 targetShape += scrollAmount;
+                 targetShape = Math.max(0, Math.min(1, targetShape));
+             } else if (isOverFooterBox && footer.scrollHeight > footer.clientHeight) {
+                 // Allow default scroll if hovering over a scrollable footer
+             } else {
+                  // Optionally prevent default scroll if over menu and menu isn't scrollable,
+                  // or if over non-scrollable footer area.
+                  // event.preventDefault();
+             }
+        }
+
+         const currentPosVec = new THREE.Vector3();
+         const spherePosVec = new THREE.Vector3();
+         const cubePosVec = new THREE.Vector3();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // --- Smooth Interpolation ---
+            currentInterpolation += (targetShape - currentInterpolation) * interpolationSpeed;
+             if (Math.abs(targetShape - currentInterpolation) < 0.001) {
+                 currentInterpolation = targetShape;
+             }
+
+            // --- Update Particle Positions ---
+            const positionsAttribute = particles.geometry.attributes.position;
+             let needsUpdate = false;
+             if (Math.abs(targetShape - currentInterpolation) > 0.0001 || (currentInterpolation > 0 && currentInterpolation < 1)) {
+                 needsUpdate = true;
+                 for (let i = 0; i < PARTICLE_COUNT; i++) {
+                     const index = i * 3;
+                     spherePosVec.set(spherePositions[index], spherePositions[index + 1], spherePositions[index + 2]);
+                     cubePosVec.set(cubePositions[index], cubePositions[index + 1], cubePositions[index + 2]);
+                     currentPosVec.copy(spherePosVec).lerp(cubePosVec, currentInterpolation);
+                     positionsAttribute.setXYZ(i, currentPosVec.x, currentPosVec.y, currentPosVec.z);
+                 }
+                 positionsAttribute.needsUpdate = true;
+             }
+
+            // --- Rotation ---
+            if (particles) {
+                particles.rotation.x += 0.0005;
+                particles.rotation.y += 0.001;
+            }
+
+            // --- Render Scene ---
+            renderer.render(scene, camera);
+        }
+
+        // --- UI Interaction Setup ---
+        function setupUIInteractions() {
+            if (lectureButton && lectureMenu) {
+                lectureButton.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevent click from immediately closing menu via document listener
+                    lectureMenu.classList.toggle('active');
+                });
+
+                // Close menu if clicked outside
+                document.addEventListener('click', (event) => {
+                    if (lectureMenu.classList.contains('active') &&
+                        !lectureMenu.contains(event.target) &&
+                        event.target !== lectureButton) {
+                        lectureMenu.classList.remove('active');
+                    }
+                });
+            } else {
+                console.error("Lecture button or menu not found!");
+            }
+        }
+
+        // --- Initialize ---
+        initThreeJS();
+        setupUIInteractions(); // Setup button click listener
+
+    </script>
+</body>
+</html>

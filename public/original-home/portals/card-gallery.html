@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Card Gallery</title>
+    <style>
+        /* Basic Reset & Global Styles */
+        :root {
+            /* Define variables for easy tweaking */
+            --card-width-lg: 180px;
+            --card-overlap-lg: -70px;
+            --card-shift-lg: 100px; /* How much cards shift right on hover */
+            --visual-height-lg: 280px;
+            --label-height-lg: 50px;
+
+            --card-width-md: 150px;
+            --card-overlap-md: -60px;
+            --card-shift-md: 80px;
+            --visual-height-md: 240px;
+            --label-height-md: 45px;
+
+            --card-width-sm: 120px;
+            --card-overlap-sm: -50px;
+            --card-shift-sm: 70px;
+            --visual-height-sm: 190px;
+            --label-height-sm: 40px;
+
+            /* Current values - start with large */
+            --card-width: var(--card-width-lg);
+            --card-overlap: var(--card-overlap-lg);
+            --card-shift: var(--card-shift-lg);
+            --visual-height: var(--visual-height-lg);
+            --label-height: var(--label-height-lg);
+
+            --transition-speed: 0.4s;
+            --transition-timing: ease-out;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8f8f8;
+            color: #333;
+            overflow-x: hidden; /* Prevent horizontal scroll on body */
+        }
+
+        /* Header and Footer Styles */
+        .page-header,
+        .page-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .page-footer {
+            border-top: 1px solid #e0e0e0;
+            border-bottom: none;
+            position: fixed; /* Stick footer to bottom */
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            z-index: 50; /* Ensure it's above scrolling content if needed */
+        }
+
+        .page-header .center,
+        .page-footer .center {
+            flex-grow: 1;
+            text-align: center;
+            font-weight: bold;
+        }
+        .page-footer .center {
+             font-size: 1.1rem;
+        }
+        
+        /* Right aligned elements */
+        .page-header .right,
+        .page-footer .right {
+             text-align: right;
+        }
+        /* Simple heart icon placeholder */
+         .heart-icon {
+             display: inline-block;
+             width: 20px;
+             height: 18px;
+             border: 2px solid #555;
+             border-radius: 50% 50% 0 0;
+             transform: rotate(-45deg);
+             position: relative;
+             top: -2px; /* Adjust alignment */
+             margin-right: 5px;
+         }
+         .heart-icon::before {
+             content: '';
+             position: absolute;
+             width: 20px;
+             height: 18px;
+             border: 2px solid #555;
+             border-radius: 50% 50% 0 0;
+             transform: rotate(90deg);
+             left: -11px; /* Position the second half */
+             top: -11px; /* Position the second half */
+         }
+
+        /* Card Container */
+        .card-gallery-container {
+            display: flex;
+            padding: 40px; /* Generous padding */
+            /* Add padding-right to accommodate the shift */
+            padding-right: calc(var(--card-shift) + 40px); 
+            min-height: calc(var(--visual-height) + var(--label-height) + 80px); /* Container height based on card + padding */
+            overflow-x: auto; /* Enable horizontal scrolling */
+            overflow-y: hidden; /* Prevent vertical scroll */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on touch devices */
+            scrollbar-width: none; /* Hide scrollbar (Firefox) */
+            margin-top: 60px; /* Space below header */
+            margin-bottom: 80px; /* Space above footer */
+            position: relative; /* For potential absolute elements if needed later */
+        }
+        .card-gallery-container::-webkit-scrollbar {
+            display: none; /* Hide scrollbar (Chrome, Safari, Edge) */
+        }
+
+        /* Individual Card Styles */
+        .card {
+            position: relative; /* Needed for z-index stacking */
+            width: var(--card-width);
+            flex-shrink: 0; /* Prevent cards from shrinking */
+            margin-right: var(--card-overlap); /* Create the overlap */
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition: transform var(--transition-speed) var(--transition-timing);
+            z-index: 1; /* Default stacking */
+        }
+
+        /* Visual Part of the Card */
+        .card-visual {
+            height: var(--visual-height);
+            border-radius: 10px 10px 0 0;
+            background-color: #e0e0e0; /* Default background */
+            background-size: cover;
+            background-position: center;
+            overflow: hidden; /* Clip content if needed */
+        }
+
+        /* Label Part of the Card */
+        .card-label {
+            height: var(--label-height);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 10px;
+            font-size: 0.9em;
+            color: #555;
+            font-weight: 500;
+            text-align: center;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            border-radius: 0 0 10px 10px; /* Match bottom corners */
+        }
+
+        /* Hover Interaction Styles */
+        /* Bring hovered card slightly forward visually */
+        .card:hover {
+           transform: translateY(-5px); /* Lift effect */
+           z-index: 10; /* Bring to front */
+           box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        /* Keep transform for hover, JS will add translateX */
+        .card:hover {
+           transition: transform var(--transition-speed) var(--transition-timing),
+                       box-shadow var(--transition-speed) var(--transition-timing);
+        }
+
+
+        /* Specific Card Visuals (Mimicking the reference image) */
+        /* Card 1: Solid Red */
+        .card:nth-child(1) .card-visual { background-color: #d93a3e; }
+        /* Card 2: Solid Blue */
+        .card:nth-child(2) .card-visual { background-color: #1e63d9; }
+        /* Card 3: Brown/Blue Ovals */
+        .card:nth-child(3) .card-visual {
+            background-color: #8c6e4d; /* Brownish */
+            /* Using radial gradients for ovals - simplified */
+            background-image:
+                radial-gradient(ellipse 50% 25% at 50% 15%, #2c3e50 60%, transparent 61%),
+                radial-gradient(ellipse 50% 25% at 50% 50%, #2c3e50 60%, transparent 61%),
+                radial-gradient(ellipse 50% 25% at 50% 85%, #2c3e50 60%, transparent 61%);
+            background-size: 80% 30%; /* Control size and spacing */
+            background-repeat: no-repeat;
+            background-position: center 10%, center 50%, center 90%;
+        }
+        /* Card 4: Yellow Key/Shape */
+        .card:nth-child(4) .card-visual {
+            background-color: #d93a3e; /* Red */
+             /* Using SVG for the shape */
+             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 150'%3E%3Cpath d='M85,50 A35,35 0 1,0 15,50 L15,80 L30,95 L30,140 L45,140 L45,110 L55,110 L55,140 L70,140 L70,95 L85,80 Z' fill='%23f7d751' stroke='%23d4af37' stroke-width='3'/%3E%3C/svg%3E");
+             background-size: 60%;
+             background-repeat: no-repeat;
+             background-position: center;
+        }
+        /* Card 5: Purple/Blue Lever */
+        .card:nth-child(5) .card-visual {
+            background-color: #d8c4e9; /* Light Purple */
+            /* Using SVG for the shape */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M20,80 A50,50 0 0,1 70,30 L80,20 L70,10 L60,20 A40,40 0 0,0 25,75 L20,80 M15,85 L25,95 L35,85 Z M65,15 A5,5 0 1,1 75,15 A5,5 0 1,1 65,15 Z' stroke='%2342a5f5' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-size: 80%;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        /* Card 6: Red/Maroon Frame */
+        .card:nth-child(6) .card-visual {
+             background-color: #e57373; /* Light Red */
+             /* Simple frame using border/box-shadow */
+             display: flex;
+             align-items: center;
+             justify-content: center;
+        }
+        .card:nth-child(6) .card-visual::before {
+            content: '';
+            display: block;
+            width: 65%;
+            height: 75%;
+            background-color: #880e4f; /* Maroon */
+            border: 5px solid #560027; /* Darker Maroon */
+            transform: rotate(5deg);
+        }
+        /* Card 7: Red/Blue Vertical Stripe */
+         .card:nth-child(7) .card-visual {
+             background: linear-gradient(to right, #e57373 70%, #4fc3f7 70%); /* Red, Blue */
+         }
+         /* Card 8: White/Outline Shape */
+        .card:nth-child(8) .card-visual {
+            background-color: #fafafa; /* Off-white */
+             /* SVG outline */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 150'%3E%3Cpath d='M50,10 C70,10 80,30 80,50 L80,120 L65,140 L35,140 L20,120 L20,50 C20,30 30,10 50,10 Z' stroke='%23555' stroke-width='3' fill='none'/%3E%3C/svg%3E");
+            background-size: 50%;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+         /* Card 9: Orange/Blue Box */
+         .card:nth-child(9) .card-visual {
+            background-color: #ff9800; /* Orange */
+            display: flex;
+            align-items: flex-end; /* Align box to bottom */
+            justify-content: center;
+         }
+         .card:nth-child(9) .card-visual::before {
+             content: '';
+             display: block;
+             width: 50%;
+             height: 30%;
+             background-color: #29b6f6; /* Light Blue */
+             border: 3px solid #0288d1; /* Darker Blue */
+             margin-bottom: 10%; /* Position from bottom */
+         }
+         /* Card 10: Purple/Red Shape */
+         .card:nth-child(10) .card-visual {
+            background-color: #ab47bc; /* Purple */
+            /* SVG shape */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M20,80 L80,80 L90,50 L50,20 L10,50 Z' fill='%23e53935' stroke='%23b71c1c' stroke-width='3'/%3E%3C/svg%3E");
+            background-size: 70%;
+            background-repeat: no-repeat;
+            background-position: center 70%; /* Lower position */
+         }
+         /* Card 11: Pink/Lighter Shape */
+        .card:nth-child(11) .card-visual {
+            background-color: #ec407a; /* Pink */
+             /* SVG shape */
+             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50,20 C80,20 90,50 80,80 L20,80 C10,50 20,20 50,20 Z' fill='%23f8bbd0' stroke='%23f48fb1' stroke-width='3'/%3E%3C/svg%3E");
+             background-size: 70%;
+             background-repeat: no-repeat;
+             background-position: center;
+        }
+
+
+        /* Responsive Adjustments */
+        @media (max-width: 1024px) {
+            :root {
+                --card-width: var(--card-width-md);
+                --card-overlap: var(--card-overlap-md);
+                --card-shift: var(--card-shift-md);
+                --visual-height: var(--visual-height-md);
+                --label-height: var(--label-height-md);
+            }
+            .page-header, .page-footer { padding: 12px 20px; font-size: 0.95rem; }
+            .card-gallery-container {
+                 padding: 30px;
+                 padding-right: calc(var(--card-shift) + 30px);
+                 min-height: calc(var(--visual-height) + var(--label-height) + 60px);
+                 margin-top: 55px; /* Adjust based on potentially smaller header */
+                 margin-bottom: 70px; /* Adjust based on potentially smaller footer */
+            }
+        }
+
+        @media (max-width: 767px) {
+             :root {
+                --card-width: var(--card-width-sm);
+                --card-overlap: var(--card-overlap-sm);
+                --card-shift: var(--card-shift-sm);
+                --visual-height: var(--visual-height-sm);
+                --label-height: var(--label-height-sm);
+            }
+             .page-header, .page-footer { padding: 10px 15px; font-size: 0.9rem; }
+             .page-footer .center { font-size: 1rem; }
+             .card-gallery-container {
+                 padding: 20px;
+                 padding-right: calc(var(--card-shift) + 20px);
+                 min-height: calc(var(--visual-height) + var(--label-height) + 40px);
+                 margin-top: 50px;
+                 margin-bottom: 60px;
+             }
+             .card-label { font-size: 0.8em; }
+        }
+
+    </style>
+</head>
+<body>
+    <a href="../index.html" style="position:fixed;z-index:9999;top:18px;left:20px;color:#181818;background:rgba(255,255,255,.88);padding:8px 10px;text-decoration:none;font:9px monospace;letter-spacing:.14em">← PORTAL</a>
+
+    <header class="page-header">
+        <div class="left">Info</div>
+        <div class="center">WORLD ②</div>
+        <div class="right">Get Cards</div>
+    </header>
+
+    <div class="card-gallery-container">
+        <!-- Add multiple cards here -->
+        <div class="card">
+            <div class="card-visual"></div>
+            <div class="card-label">Material</div>
+        </div>
+        <div class="card">
+            <div class="card-visual"></div>
+            <div class="card-label">Structure</div>
+        </div>
+        <div class="card">
+            <div class="card-visual"></div>
+            <div class="card-label">Pattern</div>
+        </div>
+        <div class="card">
+            <div class="card-visual"></div>
+            <div class="card-label">Antique</div>
+        </div>
+        <div class="card" data-label="Inevitable"> <!-- Add data-label for JS if needed, or just text -->
+            <div class="card-visual"></div>
+            <div class="card-label">Inevitable</div>
+        </div>
+        <div class="card">
+            <div class="card-visual"></div>
+            <div class="card-label">Frame</div>
+        </div>
+        <div class="card">
+            <div class="card-visual"></div>
+            <div class="card-label">Division</div>
+        </div>
+        <div class="card">
+            <div class="card-visual"></div>
+            <div class="card-label">Outline</div>
+        </div>
+        <div class="card">
+            <div class="card-visual"></div>
+            <div class="card-label">Pedestal</div>
+        </div>
+        <div class="card">
+            <div class="card-visual"></div>
+            <div class="card-label">Symbol</div>
+        </div>
+         <div class="card">
+            <div class="card-visual"></div>
+            <div class="card-label">Blush</div>
+        </div>
+        <!-- Add more cards as needed -->
+
+    </div>
+
+    <footer class="page-footer">
+        <div class="left">Contribute</div>
+        <div class="center">GENERATE A CARD</div>
+        <div class="right">
+            <span class="heart-icon"></span>Gallery
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.querySelector('.card-gallery-container');
+            const cards = document.querySelectorAll('.card');
+            let shiftAmount = 0; // Initialize
+
+            // Function to get the current shift amount from CSS variable
+            function updateShiftAmount() {
+                const rootStyle = getComputedStyle(document.documentElement);
+                shiftAmount = parseInt(rootStyle.getPropertyValue('--card-shift').trim(), 10) || 0;
+                 // Also update container padding dynamically if needed, though static CSS calc() is often sufficient
+                 // container.style.paddingRight = `calc(${shiftAmount}px + 20px)`; // Example if dynamic adjustment preferred
+            }
+
+            // Initial calculation
+            updateShiftAmount();
+
+            // Recalculate on window resize
+            window.addEventListener('resize', updateShiftAmount);
+
+            cards.forEach((hoveredCard, hoveredIndex) => {
+                hoveredCard.addEventListener('mouseenter', () => {
+                    // No need to recalculate shiftAmount here unless it changes extremely rapidly
+                    
+                    cards.forEach((card, index) => {
+                        // Apply shift only to cards AFTER the hovered one
+                        if (index > hoveredIndex) {
+                            card.style.transform = `translateX(${shiftAmount}px)`;
+                        } else {
+                            // Ensure cards before or the hovered card itself don't have the translateX shift
+                            // Keep the translateY hover effect if it exists (handled by CSS :hover)
+                            // We only explicitly reset translateX if it might have been applied previously
+                            // Extract existing Y transform if needed, but CSS handles the hover lift better
+                            const currentTransform = card.style.transform;
+                            if (currentTransform.includes('translateX')) {
+                                // If it had a shift, reset it, preserving potential translateY from CSS hover
+                                card.style.transform = currentTransform.replace(/translateX\([^)]+\)/, '').trim();
+                                 // If only translateX was there, it might become empty, allow CSS hover to apply translateY
+                                 if (card === hoveredCard && !card.style.transform) {
+                                     // Explicitly allow CSS hover to work if needed, though usually not necessary
+                                 }
+                            }
+                            // If it's the hovered card, CSS :hover { transform: translateY(-5px); } handles the lift
+                        }
+                    });
+                });
+            });
+
+            // Reset all card positions when the mouse leaves the entire container
+            container.addEventListener('mouseleave', () => {
+                cards.forEach(card => {
+                    // Reset only the translateX part, allow CSS to handle the translateY removal smoothly
+                    const currentTransform = card.style.transform;
+                     if (currentTransform.includes('translateX')) {
+                         card.style.transform = currentTransform.replace(/translateX\([^)]+\)/, '').trim();
+                     }
+                     // The CSS transition on .card will smoothly handle returning from translateY(-5px) as well
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
