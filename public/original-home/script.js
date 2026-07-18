@@ -168,8 +168,9 @@ class DreamSound {
     const now = this.context.currentTime;
     const floatRatios = [4, 4.5, 5, 6];
     const ratio = floatRatios[Math.floor(this.random() * floatRatios.length)];
-    this.playBell(55 * ratio, now + .25, 9 + this.random() * 3);
-    this.playBell(55 * ratio * 1.5, now + 3.1, 7 + this.random() * 3);
+    this.playBell(55 * ratio, now + .25, 11 + this.random() * 3);
+    this.playBell(55 * ratio * 1.5, now + 2.9, 9 + this.random() * 3);
+    this.playBell(55 * ratio * 2, now + 5.7, 8 + this.random() * 3);
   }
 
   playBell(frequency, when, duration) {
@@ -196,7 +197,7 @@ class DreamSound {
   scheduleChimes() {
     window.clearTimeout(this.spaceTimer);
     if (!this.enabled) return;
-    const wait = 8000 + this.random() * 7000;
+    const wait = 7000 + this.random() * 4500;
     this.spaceTimer = window.setTimeout(() => {
       this.chime();
       this.scheduleChimes();
