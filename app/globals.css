@@ -114,6 +114,29 @@ a { cursor: none; }
   opacity: 0.36;
 }
 
+.resonance__back {
+  position: absolute;
+  z-index: 8;
+  top: clamp(24px, 3.2vw, 48px);
+  left: clamp(24px, 3.2vw, 48px);
+  color: rgba(236, 242, 255, 0.58);
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  text-decoration: none;
+  transition: color 300ms ease, transform 300ms ease;
+}
+
+.resonance__back:hover,
+.resonance__back:focus-visible {
+  color: rgba(250, 252, 255, 0.96);
+  transform: translateX(-3px);
+}
+
+.resonance__back + .archive-mark {
+  left: auto;
+  right: clamp(24px, 3.2vw, 48px);
+}
+
 .threshold {
   position: absolute;
   z-index: 4;

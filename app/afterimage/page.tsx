@@ -1,2 +1,9 @@
-import ArchiveWorld from "../archive-world";
-export default function AfterimagePage() { return <ArchiveWorld world="afterimage" />; }
+export default function AfterimagePage() {
+  return (
+    <iframe
+      className="original-home"
+      src="/original-home/vibe-lab.html?rev=20260718-04"
+      title="After Image — Frost Studio"
+    />
+  );
+}

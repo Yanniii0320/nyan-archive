@@ -456,6 +456,7 @@ export default function ResonanceExperience() {
       <div className="resonance__veil" aria-hidden="true" />
       <div className="resonance__grain" aria-hidden="true" />
 
+      <a className="resonance__back" href="/">← ARCHIVE</a>
       <p className="archive-mark">NÝAN.ARCHIVE <span>03</span></p>
 
       <section className="threshold" aria-label="RESONANCE">
