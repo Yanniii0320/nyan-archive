@@ -61,15 +61,13 @@ const worlds = [
   }
 ];
 
-// A small, sample-free sound organism. It is intentionally quiet: a detuned
-// undertow, filtered air and rare glass tones, all generated in the browser.
-// Nothing is fetched or recorded, so every visit can become a little different.
+// A stable, sample-free sound field: no white noise and no melody, only a
+// nearly motionless harmonic space that slowly expands and contracts.
 class DreamSound {
   constructor() {
     this.context = null;
     this.master = null;
     this.reverb = null;
-    this.air = null;
     this.drones = [];
     this.enabled = false;
     this.worldIndex = 0;
@@ -105,15 +103,23 @@ class DreamSound {
     reverb.buffer = impulse;
     this.reverb = reverb;
     const wet = this.context.createGain();
-    wet.gain.value = .22;
+    wet.gain.value = .32;
     reverb.connect(wet).connect(this.master);
 
     const delay = this.context.createDelay(1.4);
     const feedback = this.context.createGain();
     delay.delayTime.value = .47;
-    feedback.gain.value = .14;
+    feedback.gain.value = .18;
     delay.connect(feedback).connect(delay);
     delay.connect(reverb);
+
+    const breath = this.context.createOscillator();
+    const breathDepth = this.context.createGain();
+    breath.type = "sine";
+    breath.frequency.value = .016;
+    breathDepth.gain.value = .006;
+    breath.connect(breathDepth).connect(this.master.gain);
+    breath.start();
 
     this.drones = [0, 1, 2].map((index) => {
       const oscillator = this.context.createOscillator();
@@ -127,7 +133,7 @@ class DreamSound {
       filter.frequency.value = index === 2 ? 1200 : 420;
       gain.gain.value = 0;
       sway.frequency.value = .018 + index * .011;
-      swayDepth.gain.value = index === 2 ? .45 : 1.1;
+      swayDepth.gain.value = index === 2 ? .14 : .28;
       sway.connect(swayDepth).connect(oscillator.detune);
       oscillator.connect(filter).connect(gain);
       gain.connect(this.master);
@@ -138,44 +144,20 @@ class DreamSound {
       return { oscillator, gain };
     });
 
-    const noise = this.context.createBuffer(1, this.context.sampleRate * 2, this.context.sampleRate);
-    const noiseData = noise.getChannelData(0);
-    for (let i = 0; i < noiseData.length; i++) noiseData[i] = Math.random() * 2 - 1;
-    const airSource = this.context.createBufferSource();
-    const airFilter = this.context.createBiquadFilter();
-    const airGain = this.context.createGain();
-    airSource.buffer = noise;
-    airSource.loop = true;
-    airFilter.type = "bandpass";
-    airFilter.frequency.value = 620;
-    airFilter.Q.value = .35;
-    airGain.gain.value = .0008;
-    airSource.connect(airFilter);
-    airFilter.connect(airGain).connect(this.master);
-    airFilter.connect(reverb);
-    airSource.start();
-    this.air = { filter: airFilter, gain: airGain };
   }
 
   setWorld(index) {
     this.worldIndex = index;
     if (!this.context || !this.enabled) return;
     const now = this.context.currentTime;
-    const palettes = [
-      { root: 55, ratios: [1, 1.498, 2.245], air: 480 },
-      { root: 48.5, ratios: [1, 1.25, 1.875], air: 760 },
-      { root: 61.74, ratios: [1, 1.5, 2], air: 1180 },
-      { root: 65.4, ratios: [1, 1.333, 2.25], air: 640 }
-    ];
-    const palette = palettes[index] || palettes[0];
+    const palette = { root: 55, ratios: [1, 1.5, 2] };
     this.drones.forEach((drone, droneIndex) => {
       const frequency = palette.root * palette.ratios[droneIndex];
       drone.oscillator.frequency.cancelScheduledValues(now);
       drone.oscillator.frequency.linearRampToValueAtTime(frequency, now + 2.6);
       drone.gain.gain.cancelScheduledValues(now);
-      drone.gain.gain.linearRampToValueAtTime([.006, .0035, .0015][droneIndex], now + 2.2);
+      drone.gain.gain.linearRampToValueAtTime([.005, .0025, .0012][droneIndex], now + 4.8);
     });
-    this.air.filter.frequency.linearRampToValueAtTime(palette.air, now + 2.4);
   }
 
   chime() {
@@ -233,10 +215,8 @@ class DreamSound {
     await this.context.resume();
     this.enabled = true;
     this.master.gain.cancelScheduledValues(this.context.currentTime);
-    this.master.gain.linearRampToValueAtTime(.18, this.context.currentTime + 2.8);
+    this.master.gain.linearRampToValueAtTime(.11, this.context.currentTime + 4.6);
     this.setWorld(this.worldIndex);
-    window.setTimeout(() => this.chime(), 1800);
-    this.scheduleChimes();
     return true;
   }
 
