@@ -68,6 +68,7 @@ class DreamSound {
   constructor() {
     this.context = null;
     this.master = null;
+    this.reverb = null;
     this.air = null;
     this.drones = [];
     this.enabled = false;
@@ -102,6 +103,7 @@ class DreamSound {
       }
     }
     reverb.buffer = impulse;
+    this.reverb = reverb;
     const wet = this.context.createGain();
     wet.gain.value = .22;
     reverb.connect(wet).connect(this.master);
@@ -147,7 +149,7 @@ class DreamSound {
     airFilter.type = "bandpass";
     airFilter.frequency.value = 620;
     airFilter.Q.value = .35;
-    airGain.gain.value = .0025;
+    airGain.gain.value = .0008;
     airSource.connect(airFilter);
     airFilter.connect(airGain).connect(this.master);
     airFilter.connect(reverb);
@@ -171,7 +173,7 @@ class DreamSound {
       drone.oscillator.frequency.cancelScheduledValues(now);
       drone.oscillator.frequency.linearRampToValueAtTime(frequency, now + 2.6);
       drone.gain.gain.cancelScheduledValues(now);
-      drone.gain.gain.linearRampToValueAtTime([.010, .006, .003][droneIndex], now + 2.2);
+      drone.gain.gain.linearRampToValueAtTime([.006, .0035, .0015][droneIndex], now + 2.2);
     });
     this.air.filter.frequency.linearRampToValueAtTime(palette.air, now + 2.4);
   }
@@ -179,24 +181,46 @@ class DreamSound {
   chime() {
     if (!this.context || !this.enabled) return;
     const now = this.context.currentTime;
-    const roots = [220, 194, 247, 262];
-    const ratio = [1.5, 2, 2.5, 3][Math.floor(this.random() * 4)];
-    const oscillator = this.context.createOscillator();
+    const roots = [196, 174.61, 220, 233.08];
+    const scale = [1, 9 / 8, 5 / 4, 3 / 2, 5 / 3, 2];
+    const phrases = [
+      [0, 2, 4, 2],
+      [0, 1, 3, 2, 1],
+      [2, 4, 3, 1],
+      [0, 3, 4, 5, 3]
+    ];
+    const phrase = phrases[Math.floor(this.random() * phrases.length)];
+    const tempo = .88 + this.random() * .26;
+    phrase.forEach((degree, index) => {
+      this.playBell(roots[this.worldIndex] * scale[degree], now + index * tempo, 4.8 + this.random() * 1.6);
+    });
+  }
+
+  playBell(frequency, when, duration) {
+    const carrier = this.context.createOscillator();
+    const overtone = this.context.createOscillator();
     const gain = this.context.createGain();
-    oscillator.type = this.random() > .55 ? "sine" : "triangle";
-    oscillator.frequency.value = roots[this.worldIndex] * ratio * (this.random() > .5 ? 1 : .5);
-    gain.gain.setValueAtTime(.0001, now);
-    gain.gain.exponentialRampToValueAtTime(.004 + this.random() * .004, now + .34);
-    gain.gain.exponentialRampToValueAtTime(.0001, now + 5.6 + this.random() * 4.5);
-    oscillator.connect(gain).connect(this.master);
-    oscillator.start(now);
-    oscillator.stop(now + 7.8);
+    carrier.type = "sine";
+    overtone.type = "triangle";
+    carrier.frequency.setValueAtTime(frequency, when);
+    overtone.frequency.setValueAtTime(frequency * 2.001, when);
+    gain.gain.setValueAtTime(.0001, when);
+    gain.gain.exponentialRampToValueAtTime(.022 + this.random() * .007, when + .22);
+    gain.gain.exponentialRampToValueAtTime(.0001, when + duration);
+    carrier.connect(gain);
+    overtone.connect(gain);
+    gain.connect(this.master);
+    gain.connect(this.reverb);
+    carrier.start(when);
+    overtone.start(when);
+    carrier.stop(when + duration + .1);
+    overtone.stop(when + duration + .1);
   }
 
   scheduleChimes() {
     window.clearTimeout(this.chimeTimer);
     if (!this.enabled) return;
-    const wait = 18000 + this.random() * 16000;
+    const wait = 12000 + this.random() * 9000;
     this.chimeTimer = window.setTimeout(() => {
       this.chime();
       this.scheduleChimes();
@@ -209,8 +233,9 @@ class DreamSound {
     await this.context.resume();
     this.enabled = true;
     this.master.gain.cancelScheduledValues(this.context.currentTime);
-    this.master.gain.linearRampToValueAtTime(.16, this.context.currentTime + 2.8);
+    this.master.gain.linearRampToValueAtTime(.18, this.context.currentTime + 2.8);
     this.setWorld(this.worldIndex);
+    window.setTimeout(() => this.chime(), 1800);
     this.scheduleChimes();
     return true;
   }

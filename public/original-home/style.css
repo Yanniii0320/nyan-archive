@@ -166,8 +166,8 @@ body { font-family: "Noto Serif SC", serif; color: var(--paper); }
   font-family:"Playfair Display", Georgia, serif; font-style:italic; font-weight:400;
   line-height:.8; white-space:nowrap;
 }
-.brand__nyan { font-size:clamp(26px,2.15vw,37px); letter-spacing:-.09em; }
-.brand__archive { margin-left:3px; font-size:clamp(12px,.9vw,16px); letter-spacing:-.06em; opacity:.82; }
+.brand__nyan { font-size:clamp(22px,1.7vw,29px); letter-spacing:-.08em; }
+.brand__archive { margin-left:1px; font-size:clamp(13px,1.02vw,17px); letter-spacing:-.065em; opacity:.82; }
 .world-meta {
   position:absolute; left:50%; transform:translateX(-50%);
   display:flex; align-items:center; gap:13px;
@@ -321,8 +321,8 @@ body { font-family: "Noto Serif SC", serif; color: var(--paper); }
 
 @media(max-width:720px) {
   .topbar { padding:20px 18px; }
-  .brand__nyan { font-size:28px; }
-  .brand__archive { font-size:13px; }
+  .brand__nyan { font-size:23px; }
+  .brand__archive { font-size:14px; }
   .world-meta { display:none; }
   .scene-copy { left:7vw; top:58%; max-width:310px; }
   .scene-description { font-size:12px; }
