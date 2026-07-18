@@ -103,13 +103,13 @@ class DreamSound {
     }
     reverb.buffer = impulse;
     const wet = this.context.createGain();
-    wet.gain.value = .38;
+    wet.gain.value = .22;
     reverb.connect(wet).connect(this.master);
 
     const delay = this.context.createDelay(1.4);
     const feedback = this.context.createGain();
     delay.delayTime.value = .47;
-    feedback.gain.value = .3;
+    feedback.gain.value = .14;
     delay.connect(feedback).connect(delay);
     delay.connect(reverb);
 
@@ -125,7 +125,7 @@ class DreamSound {
       filter.frequency.value = index === 2 ? 1200 : 420;
       gain.gain.value = 0;
       sway.frequency.value = .018 + index * .011;
-      swayDepth.gain.value = index === 2 ? 1.1 : 2.5;
+      swayDepth.gain.value = index === 2 ? .45 : 1.1;
       sway.connect(swayDepth).connect(oscillator.detune);
       oscillator.connect(filter).connect(gain);
       gain.connect(this.master);
@@ -147,9 +147,10 @@ class DreamSound {
     airFilter.type = "bandpass";
     airFilter.frequency.value = 620;
     airFilter.Q.value = .35;
-    airGain.gain.value = .012;
-    airSource.connect(airFilter).connect(airGain).connect(this.master);
-    airSource.connect(airFilter).connect(reverb);
+    airGain.gain.value = .0025;
+    airSource.connect(airFilter);
+    airFilter.connect(airGain).connect(this.master);
+    airFilter.connect(reverb);
     airSource.start();
     this.air = { filter: airFilter, gain: airGain };
   }
@@ -170,7 +171,7 @@ class DreamSound {
       drone.oscillator.frequency.cancelScheduledValues(now);
       drone.oscillator.frequency.linearRampToValueAtTime(frequency, now + 2.6);
       drone.gain.gain.cancelScheduledValues(now);
-      drone.gain.gain.linearRampToValueAtTime([.024, .016, .009][droneIndex], now + 2.2);
+      drone.gain.gain.linearRampToValueAtTime([.010, .006, .003][droneIndex], now + 2.2);
     });
     this.air.filter.frequency.linearRampToValueAtTime(palette.air, now + 2.4);
   }
@@ -185,8 +186,8 @@ class DreamSound {
     oscillator.type = this.random() > .55 ? "sine" : "triangle";
     oscillator.frequency.value = roots[this.worldIndex] * ratio * (this.random() > .5 ? 1 : .5);
     gain.gain.setValueAtTime(.0001, now);
-    gain.gain.exponentialRampToValueAtTime(.018 + this.random() * .012, now + .18);
-    gain.gain.exponentialRampToValueAtTime(.0001, now + 3.8 + this.random() * 3.5);
+    gain.gain.exponentialRampToValueAtTime(.004 + this.random() * .004, now + .34);
+    gain.gain.exponentialRampToValueAtTime(.0001, now + 5.6 + this.random() * 4.5);
     oscillator.connect(gain).connect(this.master);
     oscillator.start(now);
     oscillator.stop(now + 7.8);
@@ -195,7 +196,7 @@ class DreamSound {
   scheduleChimes() {
     window.clearTimeout(this.chimeTimer);
     if (!this.enabled) return;
-    const wait = 5200 + this.random() * 8200;
+    const wait = 18000 + this.random() * 16000;
     this.chimeTimer = window.setTimeout(() => {
       this.chime();
       this.scheduleChimes();
@@ -208,9 +209,8 @@ class DreamSound {
     await this.context.resume();
     this.enabled = true;
     this.master.gain.cancelScheduledValues(this.context.currentTime);
-    this.master.gain.linearRampToValueAtTime(.48, this.context.currentTime + 1.8);
+    this.master.gain.linearRampToValueAtTime(.16, this.context.currentTime + 2.8);
     this.setWorld(this.worldIndex);
-    this.chime();
     this.scheduleChimes();
     return true;
   }
@@ -915,7 +915,7 @@ function enterWorld() {
   subpage.dataset.world = world.key;
   subpageWorld.textContent = `0${current + 1} / ${world.name}`;
   subpageTitle.textContent = world.name;
-  subpageBody.textContent = world.sub;
+    subpageBody.textContent = "";
   buildTimeline(world.key);
 
   setTimeout(() => {
@@ -1113,7 +1113,7 @@ if (shouldReopenParent && savedReturn && Number.isInteger(savedReturn.world)) {
     subpage.dataset.world = parent.key;
     subpageWorld.textContent = `0${savedReturn.world + 1} / ${parent.name}`;
     subpageTitle.textContent = parent.name;
-    subpageBody.textContent = parent.sub;
+    subpageBody.textContent = "";
     buildTimeline(parent.key);
     butterfly.style.opacity = "0";
     subpage.classList.add("is-open");

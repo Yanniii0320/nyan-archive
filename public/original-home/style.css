@@ -162,10 +162,12 @@ body { font-family: "Noto Serif SC", serif; color: var(--paper); }
   padding:31px 43px;
 }
 .brand {
-  text-decoration:none; color:var(--paper);
-  font-family:"Cormorant Garamond",serif; font-weight:500;
-  letter-spacing:.13em; font-size:31px; line-height:1;
+  display:flex; align-items:baseline; text-decoration:none; color:var(--paper);
+  font-family:"Playfair Display", Georgia, serif; font-style:italic; font-weight:400;
+  line-height:.8; white-space:nowrap;
 }
+.brand__nyan { font-size:clamp(26px,2.15vw,37px); letter-spacing:-.09em; }
+.brand__archive { margin-left:3px; font-size:clamp(12px,.9vw,16px); letter-spacing:-.06em; opacity:.82; }
 .world-meta {
   position:absolute; left:50%; transform:translateX(-50%);
   display:flex; align-items:center; gap:13px;
@@ -319,7 +321,8 @@ body { font-family: "Noto Serif SC", serif; color: var(--paper); }
 
 @media(max-width:720px) {
   .topbar { padding:20px 18px; }
-  .brand { font-size:24px; }
+  .brand__nyan { font-size:28px; }
+  .brand__archive { font-size:13px; }
   .world-meta { display:none; }
   .scene-copy { left:7vw; top:58%; max-width:310px; }
   .scene-description { font-size:12px; }
@@ -1047,6 +1050,10 @@ body { font-family: "Noto Serif SC", serif; color: var(--paper); }
 .subpage[data-world="buffer"] .timeline-item__copy { padding-bottom: 9vh; }
 .subpage[data-world="buffer"] .timeline-item__type { margin-bottom: 11px; font-size: 9px; }
 .subpage[data-world="buffer"] .timeline-item__description { max-width: 190px; font-size: 11px; line-height: 1.7; }
+
+/* Submenus stay wordless: titles, images and motion are enough. */
+.subpage #subpageBody,
+.subpage .timeline-item__description { display: none; }
 
 /* AFTERIMAGE stays nearly wordless: the image and two titles carry the page. */
 .subpage[data-world="afterlight"] .subpage-header,
