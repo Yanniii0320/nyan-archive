@@ -61,6 +61,172 @@ const worlds = [
   }
 ];
 
+// A small, sample-free sound organism. It is intentionally quiet: a detuned
+// undertow, filtered air and rare glass tones, all generated in the browser.
+// Nothing is fetched or recorded, so every visit can become a little different.
+class DreamSound {
+  constructor() {
+    this.context = null;
+    this.master = null;
+    this.air = null;
+    this.drones = [];
+    this.enabled = false;
+    this.worldIndex = 0;
+    this.chimeTimer = 0;
+    this.seed = Math.random() * 8192;
+  }
+
+  random(offset = 0) {
+    const value = Math.sin((this.seed + offset) * 12.9898) * 43758.5453;
+    this.seed += .61803398875;
+    return value - Math.floor(value);
+  }
+
+  setup() {
+    if (this.context) return;
+    const Audio = window.AudioContext || window.webkitAudioContext;
+    if (!Audio) return;
+
+    this.context = new Audio();
+    this.master = this.context.createGain();
+    this.master.gain.value = 0;
+    this.master.connect(this.context.destination);
+
+    const reverb = this.context.createConvolver();
+    const impulse = this.context.createBuffer(2, this.context.sampleRate * 2.9, this.context.sampleRate);
+    for (let channel = 0; channel < impulse.numberOfChannels; channel++) {
+      const data = impulse.getChannelData(channel);
+      for (let i = 0; i < data.length; i++) {
+        const falloff = Math.pow(1 - i / data.length, 2.6);
+        data[i] = (Math.random() * 2 - 1) * falloff;
+      }
+    }
+    reverb.buffer = impulse;
+    const wet = this.context.createGain();
+    wet.gain.value = .38;
+    reverb.connect(wet).connect(this.master);
+
+    const delay = this.context.createDelay(1.4);
+    const feedback = this.context.createGain();
+    delay.delayTime.value = .47;
+    feedback.gain.value = .3;
+    delay.connect(feedback).connect(delay);
+    delay.connect(reverb);
+
+    this.drones = [0, 1, 2].map((index) => {
+      const oscillator = this.context.createOscillator();
+      const gain = this.context.createGain();
+      const filter = this.context.createBiquadFilter();
+      const sway = this.context.createOscillator();
+      const swayDepth = this.context.createGain();
+      oscillator.type = index === 1 ? "triangle" : "sine";
+      filter.type = "lowpass";
+      filter.Q.value = .3;
+      filter.frequency.value = index === 2 ? 1200 : 420;
+      gain.gain.value = 0;
+      sway.frequency.value = .018 + index * .011;
+      swayDepth.gain.value = index === 2 ? 1.1 : 2.5;
+      sway.connect(swayDepth).connect(oscillator.detune);
+      oscillator.connect(filter).connect(gain);
+      gain.connect(this.master);
+      gain.connect(reverb);
+      gain.connect(delay);
+      oscillator.start();
+      sway.start();
+      return { oscillator, gain };
+    });
+
+    const noise = this.context.createBuffer(1, this.context.sampleRate * 2, this.context.sampleRate);
+    const noiseData = noise.getChannelData(0);
+    for (let i = 0; i < noiseData.length; i++) noiseData[i] = Math.random() * 2 - 1;
+    const airSource = this.context.createBufferSource();
+    const airFilter = this.context.createBiquadFilter();
+    const airGain = this.context.createGain();
+    airSource.buffer = noise;
+    airSource.loop = true;
+    airFilter.type = "bandpass";
+    airFilter.frequency.value = 620;
+    airFilter.Q.value = .35;
+    airGain.gain.value = .012;
+    airSource.connect(airFilter).connect(airGain).connect(this.master);
+    airSource.connect(airFilter).connect(reverb);
+    airSource.start();
+    this.air = { filter: airFilter, gain: airGain };
+  }
+
+  setWorld(index) {
+    this.worldIndex = index;
+    if (!this.context || !this.enabled) return;
+    const now = this.context.currentTime;
+    const palettes = [
+      { root: 55, ratios: [1, 1.498, 2.245], air: 480 },
+      { root: 48.5, ratios: [1, 1.25, 1.875], air: 760 },
+      { root: 61.74, ratios: [1, 1.5, 2], air: 1180 },
+      { root: 65.4, ratios: [1, 1.333, 2.25], air: 640 }
+    ];
+    const palette = palettes[index] || palettes[0];
+    this.drones.forEach((drone, droneIndex) => {
+      const frequency = palette.root * palette.ratios[droneIndex];
+      drone.oscillator.frequency.cancelScheduledValues(now);
+      drone.oscillator.frequency.linearRampToValueAtTime(frequency, now + 2.6);
+      drone.gain.gain.cancelScheduledValues(now);
+      drone.gain.gain.linearRampToValueAtTime([.024, .016, .009][droneIndex], now + 2.2);
+    });
+    this.air.filter.frequency.linearRampToValueAtTime(palette.air, now + 2.4);
+  }
+
+  chime() {
+    if (!this.context || !this.enabled) return;
+    const now = this.context.currentTime;
+    const roots = [220, 194, 247, 262];
+    const ratio = [1.5, 2, 2.5, 3][Math.floor(this.random() * 4)];
+    const oscillator = this.context.createOscillator();
+    const gain = this.context.createGain();
+    oscillator.type = this.random() > .55 ? "sine" : "triangle";
+    oscillator.frequency.value = roots[this.worldIndex] * ratio * (this.random() > .5 ? 1 : .5);
+    gain.gain.setValueAtTime(.0001, now);
+    gain.gain.exponentialRampToValueAtTime(.018 + this.random() * .012, now + .18);
+    gain.gain.exponentialRampToValueAtTime(.0001, now + 3.8 + this.random() * 3.5);
+    oscillator.connect(gain).connect(this.master);
+    oscillator.start(now);
+    oscillator.stop(now + 7.8);
+  }
+
+  scheduleChimes() {
+    window.clearTimeout(this.chimeTimer);
+    if (!this.enabled) return;
+    const wait = 5200 + this.random() * 8200;
+    this.chimeTimer = window.setTimeout(() => {
+      this.chime();
+      this.scheduleChimes();
+    }, wait);
+  }
+
+  async enable() {
+    this.setup();
+    if (!this.context) return false;
+    await this.context.resume();
+    this.enabled = true;
+    this.master.gain.cancelScheduledValues(this.context.currentTime);
+    this.master.gain.linearRampToValueAtTime(.48, this.context.currentTime + 1.8);
+    this.setWorld(this.worldIndex);
+    this.chime();
+    this.scheduleChimes();
+    return true;
+  }
+
+  disable() {
+    if (!this.context) return;
+    this.enabled = false;
+    window.clearTimeout(this.chimeTimer);
+    const now = this.context.currentTime;
+    this.master.gain.cancelScheduledValues(now);
+    this.master.gain.linearRampToValueAtTime(0, now + .7);
+  }
+}
+
+const dreamSound = new DreamSound();
+
 const timelineStories = {
   liminal: [
     {
@@ -654,6 +820,7 @@ function applyWorld(index, initial = false) {
   app.style.setProperty("--world-rgb", world.rgb);
   butterfly.style.setProperty("--butterfly-hue", world.hue);
   returnButterfly.style.setProperty("--butterfly-hue", world.hue);
+  dreamSound.setWorld(current);
 
   if (!initial) {
     app.classList.add("is-changing");
@@ -899,10 +1066,26 @@ randomHome.addEventListener("click", (event) => {
   }
 });
 
-soundToggle.addEventListener("click", () => {
+soundToggle.addEventListener("click", async () => {
   const nextState = soundToggle.getAttribute("aria-pressed") !== "true";
+  if (nextState) {
+    try {
+      const started = await dreamSound.enable();
+      if (!started) return;
+    } catch {
+      return;
+    }
+  } else {
+    dreamSound.disable();
+  }
   soundToggle.setAttribute("aria-pressed", String(nextState));
   document.querySelector("#soundState").textContent = nextState ? "ON" : "OFF";
+});
+
+document.addEventListener("visibilitychange", () => {
+  if (!dreamSound.context) return;
+  if (document.hidden) dreamSound.context.suspend();
+  else if (dreamSound.enabled) dreamSound.context.resume();
 });
 
 const savedReturn = (() => {
