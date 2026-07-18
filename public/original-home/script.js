@@ -71,7 +71,7 @@ class DreamSound {
     this.drones = [];
     this.enabled = false;
     this.worldIndex = 0;
-    this.chimeTimer = 0;
+    this.spaceTimer = 0;
     this.seed = Math.random() * 8192;
   }
 
@@ -92,7 +92,7 @@ class DreamSound {
     this.master.connect(this.context.destination);
 
     const reverb = this.context.createConvolver();
-    const impulse = this.context.createBuffer(2, this.context.sampleRate * 2.9, this.context.sampleRate);
+    const impulse = this.context.createBuffer(2, this.context.sampleRate * 3.8, this.context.sampleRate);
     for (let channel = 0; channel < impulse.numberOfChannels; channel++) {
       const data = impulse.getChannelData(channel);
       for (let i = 0; i < data.length; i++) {
@@ -103,13 +103,13 @@ class DreamSound {
     reverb.buffer = impulse;
     this.reverb = reverb;
     const wet = this.context.createGain();
-    wet.gain.value = .32;
+    wet.gain.value = .36;
     reverb.connect(wet).connect(this.master);
 
     const delay = this.context.createDelay(1.4);
     const feedback = this.context.createGain();
-    delay.delayTime.value = .47;
-    feedback.gain.value = .18;
+    delay.delayTime.value = .78;
+    feedback.gain.value = .22;
     delay.connect(feedback).connect(delay);
     delay.connect(reverb);
 
@@ -141,7 +141,7 @@ class DreamSound {
       gain.connect(delay);
       oscillator.start();
       sway.start();
-      return { oscillator, gain };
+      return { oscillator, gain, filter };
     });
 
   }
@@ -151,31 +151,24 @@ class DreamSound {
     if (!this.context || !this.enabled) return;
     const now = this.context.currentTime;
     const palette = { root: 55, ratios: [1, 1.5, 2] };
+    const spaceShades = [.88, .96, 1.08, 1];
+    const shade = spaceShades[index] || 1;
     this.drones.forEach((drone, droneIndex) => {
       const frequency = palette.root * palette.ratios[droneIndex];
       drone.oscillator.frequency.cancelScheduledValues(now);
       drone.oscillator.frequency.linearRampToValueAtTime(frequency, now + 2.6);
       drone.gain.gain.cancelScheduledValues(now);
-      drone.gain.gain.linearRampToValueAtTime([.005, .0025, .0012][droneIndex], now + 4.8);
+      drone.gain.gain.linearRampToValueAtTime([.005, .0025, .0012][droneIndex] * shade, now + 6.8);
+      drone.filter.frequency.linearRampToValueAtTime([300, 560, 980][droneIndex] * shade, now + 7.5);
     });
   }
 
   chime() {
     if (!this.context || !this.enabled) return;
     const now = this.context.currentTime;
-    const roots = [196, 174.61, 220, 233.08];
-    const scale = [1, 9 / 8, 5 / 4, 3 / 2, 5 / 3, 2];
-    const phrases = [
-      [0, 2, 4, 2],
-      [0, 1, 3, 2, 1],
-      [2, 4, 3, 1],
-      [0, 3, 4, 5, 3]
-    ];
-    const phrase = phrases[Math.floor(this.random() * phrases.length)];
-    const tempo = .88 + this.random() * .26;
-    phrase.forEach((degree, index) => {
-      this.playBell(roots[this.worldIndex] * scale[degree], now + index * tempo, 4.8 + this.random() * 1.6);
-    });
+    const floatRatios = [4, 4.5, 5, 6];
+    const ratio = floatRatios[Math.floor(this.random() * floatRatios.length)];
+    this.playBell(55 * ratio, now, 8 + this.random() * 4);
   }
 
   playBell(frequency, when, duration) {
@@ -183,11 +176,11 @@ class DreamSound {
     const overtone = this.context.createOscillator();
     const gain = this.context.createGain();
     carrier.type = "sine";
-    overtone.type = "triangle";
+    overtone.type = "sine";
     carrier.frequency.setValueAtTime(frequency, when);
     overtone.frequency.setValueAtTime(frequency * 2.001, when);
     gain.gain.setValueAtTime(.0001, when);
-    gain.gain.exponentialRampToValueAtTime(.022 + this.random() * .007, when + .22);
+    gain.gain.exponentialRampToValueAtTime(.012 + this.random() * .005, when + 1.4);
     gain.gain.exponentialRampToValueAtTime(.0001, when + duration);
     carrier.connect(gain);
     overtone.connect(gain);
@@ -200,10 +193,10 @@ class DreamSound {
   }
 
   scheduleChimes() {
-    window.clearTimeout(this.chimeTimer);
+    window.clearTimeout(this.spaceTimer);
     if (!this.enabled) return;
-    const wait = 12000 + this.random() * 9000;
-    this.chimeTimer = window.setTimeout(() => {
+    const wait = 15000 + this.random() * 13000;
+    this.spaceTimer = window.setTimeout(() => {
       this.chime();
       this.scheduleChimes();
     }, wait);
@@ -217,13 +210,14 @@ class DreamSound {
     this.master.gain.cancelScheduledValues(this.context.currentTime);
     this.master.gain.linearRampToValueAtTime(.11, this.context.currentTime + 4.6);
     this.setWorld(this.worldIndex);
+    this.scheduleChimes();
     return true;
   }
 
   disable() {
     if (!this.context) return;
     this.enabled = false;
-    window.clearTimeout(this.chimeTimer);
+    window.clearTimeout(this.spaceTimer);
     const now = this.context.currentTime;
     this.master.gain.cancelScheduledValues(now);
     this.master.gain.linearRampToValueAtTime(0, now + .7);
